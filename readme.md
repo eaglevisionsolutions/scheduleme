@@ -1,8 +1,4 @@
-Sure, here is the complete code for the README.md file, ready to be copied and pasted into a file named README.md in the root of your GitHub repository.
-
-Markdown
-
-# Your Custom Booking System for WordPress
+# Schedule Me Booking System for WordPress
 
 This is a custom-built, multi-step booking system designed for WordPress websites. It allows users to book appointments, dynamically displaying only available slots from your Google Calendar, and confirms the booking on Google Calendar *only* after a successful PayPal payment.
 
