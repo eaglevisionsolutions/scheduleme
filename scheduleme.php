@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: Your Custom Booking System
+ * Plugin Name: Schedule Me Booking Plugin
  * Plugin URI:  https://yourwebsite.com/
  * Description: A custom multi-step booking form with Google Calendar and PayPal integration.
  * Version:     1.0.0
@@ -24,13 +24,18 @@ require_once SCME_PLUGIN_DIR . 'includes/class-booking-manager.php';
 require_once SCME_PLUGIN_DIR . 'includes/class-google-calendar-api.php';
 require_once SCME_PLUGIN_DIR . 'includes/class-paypal-ipn.php';
 require_once SCME_PLUGIN_DIR . 'includes/class-form-handler.php';
+require_once SCME_PLUGIN_DIR . 'includes/class-booking-submission-manager.php';
+require_once SCME_PLUGIN_DIR . 'includes/class-booking-form-cpt.php';
+require_once SCME_PLUGIN_DIR . 'includes/class-booking-form-metabox.php';
 require_once SCME_PLUGIN_DIR . 'admin/settings-page.php';
+require_once SCME_PLUGIN_DIR . 'admin/submissions-page.php';
 
 /**
  * Plugin Activation Hook
  */
 function scme_activate_plugin() {
     SCME_Booking_Manager::create_tables(); // Create custom database tables
+    SCME_Booking_Submission_Manager::create_table();
     // Optionally, set default options
 }
 register_activation_hook( __FILE__, 'scme_activate_plugin' );

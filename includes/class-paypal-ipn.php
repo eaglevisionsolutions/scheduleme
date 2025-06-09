@@ -128,6 +128,18 @@ class SCME_PayPal_IPN {
                         $txn_id
                     );
 
+                    // Store paid/verified submission
+            if ( class_exists( 'SCME_Booking_Submission_Manager' ) ) {
+                SCME_Booking_Submission_Manager::insert([
+                    'form_id'        => $booking->form_id ?? 0, // Adjust if your booking object uses a different property
+                    'user_name'      => $booking->client_name,
+                    'user_email'     => $booking->client_email,
+                    'service'        => $booking->service_name,
+                    'booking_time'   => $booking->start_time,
+                    'payment_status' => 'paid',
+                    'payment_id'     => $txn_id,
+                ]);
+            }   
                     // Create Google Calendar Event
                     $google_calendar_api = new SCME_Google_Calendar_API();
                     if ( $google_calendar_api->is_ready() ) {
