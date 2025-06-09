@@ -1,0 +1,196 @@
+/* Multi-step form container */
+.scme-multi-step-form {
+    max-width: 600px;
+    margin: 30px auto;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    font-family: Arial, sans-serif;
+}
+
+/* Progress indicators */
+.scme-form-progress {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 25px;
+    position: relative;
+}
+
+.scme-form-progress::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #eee;
+    transform: translateY(-50%);
+    z-index: 0;
+}
+
+.scme-step-indicator {
+    background-color: #f0f0f0;
+    color: #555;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.9em;
+    z-index: 1;
+    position: relative;
+    box-shadow: 0 0 0 4px #fff; /* White ring to cover line */
+}
+
+.scme-step-indicator.active {
+    background-color: #0073aa; /* WordPress primary blue */
+    color: #fff;
+}
+
+/* Form steps */
+.scme-form-step {
+    display: none; /* Hidden by default */
+}
+
+.scme-form-step.active {
+    display: block;
+}
+
+.scme-form-step h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+/* Form fields */
+.scme-form-field {
+    margin-bottom: 18px;
+}
+
+.scme-form-field label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #444;
+}
+
+.scme-form-field input[type="text"],
+.scme-form-field input[type="email"],
+.scme-form-field input[type="tel"],
+.scme-form-field input[type="date"],
+.scme-form-field select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box; /* Include padding in width */
+    font-size: 1em;
+}
+
+.scme-form-field input[type="checkbox"] {
+    margin-right: 8px;
+}
+
+/* Buttons */
+.scme-form-step button {
+    background-color: #0073aa;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+    margin-top: 10px;
+}
+
+.scme-form-step button:hover {
+    background-color: #005177;
+}
+
+.scme-form-step button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+.scme-prev-step {
+    background-color: #666;
+    margin-right: 10px;
+}
+
+.scme-prev-step:hover {
+    background-color: #555;
+}
+
+/* Time Slots Grid */
+.scme-time-slots-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.scme-time-slot {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.scme-time-slot:hover:not(.selected) {
+    background-color: #e9e9e9;
+}
+
+.scme-time-slot.selected {
+    background-color: #0073aa;
+    color: #fff;
+    border-color: #0073aa;
+    font-weight: bold;
+}
+
+.scme-time-slot.disabled {
+    background-color: #eee;
+    color: #aaa;
+    border-color: #ccc;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* Booking Summary */
+#scme-booking-summary {
+    background-color: #f9f9f9;
+    border: 1px solid #eee;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+#scme-booking-summary p {
+    margin: 8px 0;
+    font-size: 1.1em;
+}
+
+#scme-booking-summary strong {
+    color: #333;
+}
+
+/* Form message */
+#scme-form-message {
+    padding: 10px;
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    border-radius: 4px;
+    margin-top: 15px;
+    display: none; /* Hidden by default */
+}
+#scme-form-message.success {
+    background-color: #d4edda;
+    color: #155724;
+    border-color: #c3e6cb;
+}
