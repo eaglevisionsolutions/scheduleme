@@ -24,9 +24,48 @@ window.SCMEFormBuilderInit = function(initialFields) {
                 $dropzone.append(html);
             });
             $input.val(JSON.stringify(fields));
-            $dropzone.sortable({
-                items: '.scme-form-builder-field',
-                update: function(event, ui) {
+        }
+        renderFields();
+
+        // Make widgets draggable (but not removable from palette)
+        $('.scme-widget').draggable({
+            helper: "clone",
+            connectToSortable: "#scme-form-builder-dropzone",
+            revert: "invalid",
+            appendTo: 'body',
+            zIndex: 10000,
+            start: function(e, ui) {
+                ui.helper.width($(this).width());
+            }
+        });
+
+        // Make dropzone sortable and accept external widgets
+        $dropzone.sortable({
+            items: '.scme-form-builder-field',
+            placeholder: 'scme-form-builder-placeholder',
+            receive: function(event, ui) {
+                // Only add new field if coming from palette
+                if (ui.item.hasClass('scme-widget')) {
+                    let type = ui.item.data('type');
+                    let label = type.charAt(0).toUpperCase() + type.slice(1);
+                    let name = type + '_' + (fields.length+1);
+                    let step = 1;
+                    let required = false;
+                    let regex = '';
+                    let options = '';
+                    if(['select','radio','checkbox'].includes(type)) {
+                        options = 'Option 1,Option 2';
+                    }
+                    let newField = {type, label, name, placeholder:'', step, required, regex, options};
+                    // Insert at correct position
+                    let idx = ui.item.index();
+                    fields.splice(idx, 0, newField);
+                    renderFields();
+                    editField(idx); // Open edit dialog immediately
+                    // Remove the palette widget clone
+                    setTimeout(function(){ $dropzone.find('.scme-widget').remove(); }, 10);
+                } else {
+                    // Reorder existing fields
                     let newOrder = [];
                     $dropzone.children('.scme-form-builder-field').each(function(){
                         let idx = $(this).data('idx');
@@ -35,35 +74,18 @@ window.SCMEFormBuilderInit = function(initialFields) {
                     fields = newOrder;
                     renderFields();
                 }
-            });
-        }
-        renderFields();
-
-        // Make widgets draggable
-        $('.scme-widget').draggable({
-            helper: "clone",
-            connectToSortable: "#scme-form-builder-dropzone",
-            revert: "invalid"
-        });
-
-        // Dropzone accepts widgets
-        $dropzone.droppable({
-            accept: ".scme-widget",
-            drop: function(event, ui) {
-                let type = ui.draggable.data('type');
-                let label = type.charAt(0).toUpperCase() + type.slice(1);
-                let name = type + '_' + (fields.length+1);
-                let step = 1;
-                let required = false;
-                let regex = '';
-                let options = '';
-                if(['select','radio','checkbox'].includes(type)) {
-                    options = 'Option 1,Option 2';
+            },
+            update: function(event, ui) {
+                // Only reorder if not from palette
+                if (!ui.item.hasClass('scme-widget')) {
+                    let newOrder = [];
+                    $dropzone.children('.scme-form-builder-field').each(function(){
+                        let idx = $(this).data('idx');
+                        newOrder.push(fields[idx]);
+                    });
+                    fields = newOrder;
+                    renderFields();
                 }
-                let newField = {type, label, name, placeholder:'', step, required, regex, options};
-                fields.push(newField);
-                renderFields();
-                editField(fields.length-1); // Open edit dialog immediately
             }
         });
 
