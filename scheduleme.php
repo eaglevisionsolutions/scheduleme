@@ -113,9 +113,38 @@ function scme_init_paypal_listener() {
 }
 add_action( 'plugins_loaded', 'scme_init_paypal_listener' ); // Ensure plugin classes are loaded
 
-function scme_admin_enqueue_scripts($hook) {
-    if ($hook === 'post.php' || $hook === 'post-new.php') {
-        wp_enqueue_script('jquery-ui-sortable');
+
+function scme_admin_enqueue_form_builder_script($hook) {
+    global $post;
+    // Only load on the booking form CPT edit/add screen
+    $is_booking_form = false;
+    if (
+        ($hook === 'post.php' || $hook === 'post-new.php') &&
+        isset($_GET['post_type']) && $_GET['post_type'] === 'scme_booking_form'
+    ) {
+        $is_booking_form = true;
+    }
+    // Also handle the case when editing an existing post (post_type is not in URL)
+    if (
+        ($hook === 'post.php' || $hook === 'post-new.php') &&
+        isset($post) && isset($post->post_type) && $post->post_type === 'scme_booking_form'
+    ) {
+        $is_booking_form = true;
+    }
+    if ($is_booking_form) {
+        wp_enqueue_script(
+            'SCME-form-builder-admin',
+            SCME_PLUGIN_URL . 'admin/form-builder-admin.js',
+            array('jquery', 'jquery-ui-sortable'),
+            SCME_VERSION,
+            true
+        );
+        wp_enqueue_style(
+            'SCME-style',
+            SCME_PLUGIN_URL . 'public/css/style.css',
+            array(),
+            SCME_VERSION
+        );
     }
 }
-add_action('admin_enqueue_scripts', 'scme_admin_enqueue_scripts');
+add_action('admin_enqueue_scripts', 'scme_admin_enqueue_form_builder_script');
