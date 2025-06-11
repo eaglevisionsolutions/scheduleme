@@ -57,7 +57,7 @@ class SCME_Booking_Form_Metabox {
                 'scme-admin-form-builder',
                 plugins_url('public/js/script.js', dirname(__FILE__)),
                 array('jquery', 'jquery-ui-sortable', 'jquery-ui-draggable'),
-                null,
+                (defined('SCME_VERSION') ? SCME_VERSION : null),
                 true
             );
             ?>

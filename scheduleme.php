@@ -3,7 +3,7 @@
  * Plugin Name: Schedule Me Booking Plugin
  * Plugin URI:  https://eaglevisionsolutions.ca/schedule-me-booking-plugin
  * Description: A custom multi-step booking form with Google Calendar and PayPal integration.
- * Version:     1.0.7
+ * Version:     1.0.8
  * Author:      Eagle Vision Solutions
  * Author URI:  https://eaglevisionsolutions.ca/
  * Text Domain: schedule-me-booking
