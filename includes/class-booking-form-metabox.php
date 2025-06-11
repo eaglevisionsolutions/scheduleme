@@ -50,107 +50,12 @@ class SCME_Booking_Form_Metabox {
         </div>
         <div id="scme-form-builder-dropzone" class="scme-form-builder-dropzone"></div>
         <input type="hidden" id="scme_form_fields_input" name="scme_form_fields" value='<?php echo esc_attr(json_encode($fields)); ?>' />
+        <script src="<?php echo SCME_PLUGIN_URL . 'public/js/script.js'; ?>?adminform=1"></script>
         <script>
-        jQuery(function($){
-            let $dropzone = $('#scme-form-builder-dropzone');
-            let $input = $('#scme_form_fields_input');
-            let fields = <?php echo json_encode($fields); ?> || [];
-
-            // Render fields in dropzone
-            function renderFields() {
-                $dropzone.empty();
-                if(fields.length === 0) {
-                    $dropzone.append('<div style="color:#888;">Drag widgets here to build your form</div>');
-                }
-                fields.forEach(function(field, idx){
-                    let label = field.label || field.type.charAt(0).toUpperCase() + field.type.slice(1);
-                    let html = `<div class="scme-form-builder-field" data-idx="${idx}">
-                        <strong>${label}</strong> <span style="color:#888;">[${field.type}]</span>
-                        <br><small>${field.name || ''}</small>
-                        <div class="scme-field-actions">
-                            <button type="button" class="scme-edit-field button button-small">Edit</button>
-                            <button type="button" class="scme-remove-field button button-small">Remove</button>
-                        </div>
-                    </div>`;
-                    $dropzone.append(html);
-                });
-                $input.val(JSON.stringify(fields));
-                $dropzone.sortable({
-                    items: '.scme-form-builder-field',
-                    update: function(event, ui) {
-                        let newOrder = [];
-                        $dropzone.children('.scme-form-builder-field').each(function(){
-                            let idx = $(this).data('idx');
-                            newOrder.push(fields[idx]);
-                        });
-                        fields = newOrder;
-                        renderFields();
-                    }
-                });
-            }
-            renderFields();
-
-            // Make widgets draggable
-            $('.scme-widget').draggable({
-                helper: "clone",
-                connectToSortable: "#scme-form-builder-dropzone",
-                revert: "invalid"
-            });
-
-            // Dropzone accepts widgets
-            $dropzone.droppable({
-                accept: ".scme-widget",
-                drop: function(event, ui) {
-                    let type = ui.draggable.data('type');
-                    let label = type.charAt(0).toUpperCase() + type.slice(1);
-                    let name = type + '_' + (fields.length+1);
-                    let step = 1;
-                    let required = false;
-                    let regex = '';
-                    let options = '';
-                    if(['select','radio','checkbox'].includes(type)) {
-                        options = 'Option 1,Option 2';
-                    }
-                    let newField = {type, label, name, placeholder:'', step, required, regex, options};
-                    fields.push(newField);
-                    renderFields();
-                    editField(fields.length-1); // Open edit dialog immediately
-                }
-            });
-
-            // Remove Field
-            $dropzone.on('click', '.scme-remove-field', function(){
-                let idx = $(this).closest('.scme-form-builder-field').data('idx');
-                if (confirm('Remove this field?')) {
-                    fields.splice(idx,1);
-                    renderFields();
-                }
-            });
-
-            // Edit Field
-            $dropzone.on('click', '.scme-edit-field', function(){
-                let idx = $(this).closest('.scme-form-builder-field').data('idx');
-                editField(idx);
-            });
-
-            function editField(idx) {
-                let f = fields[idx];
-                let label = prompt('Label:', f.label);
-                let name = prompt('Field name:', f.name);
-                let placeholder = prompt('Placeholder:', f.placeholder);
-                let required = confirm('Required? (OK = Yes, Cancel = No)');
-                let regex = prompt('Custom validation regex (optional):', f.regex||'');
-                let step = prompt('Step number (for multi-step):', f.step||1);
-                let options = f.options || '';
-                if(['select','radio','checkbox'].includes(f.type)) {
-                    options = prompt('Options (comma separated):', options);
-                }
-                f.label = label; f.name = name; f.placeholder = placeholder;
-                f.required = required; f.regex = regex; f.step = parseInt(step)||1; f.options = options;
-                fields[idx] = f;
-                renderFields();
-            }
-        });
+        // Only run the form builder JS if on the booking form CPT admin page
+        if (typeof window.SCMEFormBuilderInit === 'function') {
+            window.SCMEFormBuilderInit(<?php echo json_encode($fields); ?>);
+        }
         </script>
         <p><em>Drag widgets from above into the form area. Click "Edit" to configure each field. Drag fields to reorder. For production, use a full-featured JS form builder.</em></p>
         <?php
