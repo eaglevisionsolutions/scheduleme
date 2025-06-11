@@ -16,7 +16,7 @@ class SCME_Booking_Form_CPT {
             ),
             'public' => false,
             'show_ui' => true,
-            'show_in_menu' => true,
+            'show_in_menu' => 'schedule-me',
             'menu_icon' => 'dashicons-calendar-alt',
             'supports' => array('title'),
         ));

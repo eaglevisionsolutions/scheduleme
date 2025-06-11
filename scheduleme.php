@@ -1,11 +1,12 @@
 <?php
 /**
  * Plugin Name: Schedule Me Booking Plugin
- * Plugin URI:  https://yourwebsite.com/
+ * Plugin URI:  https://eaglevisionsolutions.ca/schedule-me-booking-plugin
  * Description: A custom multi-step booking form with Google Calendar and PayPal integration.
- * Version:     1.0.0
- * Author:      Your Name
- * Author URI:  https://yourwebsite.com/
+ * Version:     1.0.7
+ * Author:      Eagle Vision Solutions
+ * Author URI:  https://eaglevisionsolutions.ca/
+ * Text Domain: schedule-me-booking
  * License:     GPL-2.0+
  * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
  */

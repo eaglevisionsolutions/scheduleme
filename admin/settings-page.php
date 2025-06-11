@@ -6,20 +6,72 @@ if (!defined( 'ABSPATH' )){
 class SCME_Admin_Settings {
 
     public function __construct() {
-        add_action( 'admin_menu', array( $this, 'add_admin_menu' ) );
+        add_action( 'admin_menu', array( $this, 'scme_register_admin_menu' ) );
         add_action( 'admin_init', array( $this, 'register_settings' ) );
     }
 
-    public function add_admin_menu() {
+    /**
+     * Register the admin menu and submenu pages.
+     */
+    function scme_register_admin_menu() {
+          // Top-level menu
         add_menu_page(
-            __( 'Custom Booking Settings', 'your-custom-booking-plugin' ),
-            __( 'Custom Booking', 'your-custom-booking-plugin' ),
+            __( 'Schedule Me Settings', 'your-custom-booking-plugin' ),
+            __( 'Schedule Me', 'your-custom-booking-plugin' ),
+            'manage_options',
+            'schedule-me',
+            array( $this, 'settings_page_content' ),
+            'dashicons-calendar-alt',
+            80
+        );
+
+        // Settings submenu (points to the same page as the top-level menu)
+        add_submenu_page(
+            'schedule-me', // Parent slug
+            __( 'Settings', 'your-custom-booking-plugin' ),
+            __( 'Settings', 'your-custom-booking-plugin' ),
+            'manage_options',
+            'schedule-me', // Must match the top-level menu slug to show the same page
+            array( $this, 'settings_page_content' )
+        );
+
+        // Bookings submenu
+        add_submenu_page(
+            'schedule-me',
+            __( 'Bookings', 'your-custom-booking-plugin' ),
+            __( 'Bookings', 'your-custom-booking-plugin' ),
+            'manage_options',
+            'scme-submissions',
+            'scme_submissions_page'
+        );
+        /* add_menu_page(
+            __( 'Schedule Me Settings', 'your-custom-booking-plugin' ),
+            __( 'Schedule Me', 'your-custom-booking-plugin' ),
             'manage_options', // Capability required
             'SCME-settings',
             array( $this, 'settings_page_content' ),
             'dashicons-calendar-alt', // Icon
             80 // Position
         );
+        /* add_menu_page(
+            'schedule-me',
+            'Schedule Me',
+            'manage_options',
+            'schedule-me',
+            'scme_settings_page_callback',
+            'dashicons-calendar-alt'
+        ); 
+        
+       // Add Booking Submissions submenu
+        add_submenu_page(
+            'SCME-settings', // <-- Parent slug matches CPT
+            'Bookings',
+            'Bookings',
+            'manage_options',
+            'scme-submissions',
+            'scme_submissions_page'
+        ); */
+
     }
 
     public function register_settings() {
@@ -176,11 +228,11 @@ class SCME_Admin_Settings {
     public function settings_page_content() {
         ?>
         <div class="wrap">
-            <h1><?php esc_html_e( 'Your Custom Booking System Settings', 'your-custom-booking-plugin' ); ?></h1>
+            <h1><?php esc_html_e( 'Schedule Me System Settings', 'your-custom-booking-plugin' ); ?></h1>
             <form method="post" action="options.php">
                 <?php
                 settings_fields( 'SCME_settings_group' );
-                do_settings_sections( 'SCME-settings' );
+                do_settings_sections('SCME-settings');
                 submit_button();
                 ?>
             </form>
