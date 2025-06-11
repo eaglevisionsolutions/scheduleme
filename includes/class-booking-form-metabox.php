@@ -50,7 +50,6 @@ class SCME_Booking_Form_Metabox {
         </div>
         <div id="scme-form-builder-dropzone" class="scme-form-builder-dropzone"></div>
         <input type="hidden" id="scme_form_fields_input" name="scme_form_fields" value='<?php echo esc_attr(json_encode($fields)); ?>' />
-        // Enqueue the script for the admin form builder only on this screen
             <script>
             if (typeof window.SCMEFormBuilderInit === 'function') {
                 window.SCMEFormBuilderInit(<?php echo json_encode($fields); ?>);
