@@ -50,13 +50,25 @@ class SCME_Booking_Form_Metabox {
         </div>
         <div id="scme-form-builder-dropzone" class="scme-form-builder-dropzone"></div>
         <input type="hidden" id="scme_form_fields_input" name="scme_form_fields" value='<?php echo esc_attr(json_encode($fields)); ?>' />
-        <script src="<?php echo plugins_url('public/js/script.js', dirname(__FILE__)); ?>"></script>
-        <script>
-        // Only run the form builder JS if on the booking form CPT admin page
-        if (typeof window.SCMEFormBuilderInit === 'function') {
-            window.SCMEFormBuilderInit(<?php echo json_encode($fields); ?>);
-        }
-        </script>
+        <?php
+        // Enqueue the script for the admin form builder only on this screen
+        add_action('admin_footer', function() use ($fields) {
+            wp_enqueue_script(
+                'scme-admin-form-builder',
+                plugins_url('public/js/script.js', dirname(__FILE__)),
+                array('jquery', 'jquery-ui-sortable', 'jquery-ui-draggable'),
+                null,
+                true
+            );
+            ?>
+            <script>
+            if (typeof window.SCMEFormBuilderInit === 'function') {
+                window.SCMEFormBuilderInit(<?php echo json_encode($fields); ?>);
+            }
+            </script>
+            <?php
+        });
+        ?>
         <p><em>Drag widgets from above into the form area. Click "Edit" to configure each field. Drag fields to reorder. For production, use a full-featured JS form builder.</em></p>
         <?php
     }
