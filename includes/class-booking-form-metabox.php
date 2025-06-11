@@ -50,7 +50,7 @@ class SCME_Booking_Form_Metabox {
         </div>
         <div id="scme-form-builder-dropzone" class="scme-form-builder-dropzone"></div>
         <input type="hidden" id="scme_form_fields_input" name="scme_form_fields" value='<?php echo esc_attr(json_encode($fields)); ?>' />
-        <script src="<?php echo plugins_url('public/js/script.js', dirname(__FILE__)); ?>?adminform=1"></script>
+        <script src="<?php echo plugins_url('public/js/script.js', dirname(__FILE__)); ?>"></script>
         <script>
         // Only run the form builder JS if on the booking form CPT admin page
         if (typeof window.SCMEFormBuilderInit === 'function') {
