@@ -112,3 +112,10 @@ function scme_init_paypal_listener() {
     add_action( 'template_redirect', array( $paypal_ipn_handler, 'handle_request' ) );
 }
 add_action( 'plugins_loaded', 'scme_init_paypal_listener' ); // Ensure plugin classes are loaded
+
+function scme_admin_enqueue_scripts($hook) {
+    if ($hook === 'post.php' || $hook === 'post-new.php') {
+        wp_enqueue_script('jquery-ui-sortable');
+    }
+}
+add_action('admin_enqueue_scripts', 'scme_admin_enqueue_scripts');

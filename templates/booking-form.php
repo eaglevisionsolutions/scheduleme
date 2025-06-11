@@ -1,73 +1,132 @@
+<?php
+global $post;
+$form_id = isset($post) && $post->post_type === 'scme_booking_form' ? $post->ID : (isset($_GET['form_id']) ? intval($_GET['form_id']) : 0);
+if (!$form_id) {
+    echo '<p>No form found.</p>';
+    return;
+}
+$fields = get_post_meta($form_id, '_scme_form_fields', true);
+$fields = $fields ? json_decode($fields, true) : [];
+$style = get_post_meta($form_id, '_scme_form_style', true);
+if ($style) {
+    echo '<style>' . $style . '</style>';
+}
+$steps = [];
+foreach ($fields as $f) {
+    $step = isset($f['step']) ? intval($f['step']) : 1;
+    if (!isset($steps[$step])) $steps[$step] = [];
+    $steps[$step][] = $f;
+}
+ksort($steps);
+$step_count = count($steps);
+?>
 <div id="scme-booking-form-wrapper" class="scme-multi-step-form">
     <div class="scme-form-progress">
-        <span class="scme-step-indicator active" data-step="1">1. Your Info</span>
-        <span class="scme-step-indicator" data-step="2">2. Select Time</span>
-        <span class="scme-step-indicator" data-step="3">3. Confirm & Pay</span>
+        <?php foreach (range(1, $step_count) as $s): ?>
+            <span class="scme-step-indicator<?php if($s==1) echo ' active'; ?>" data-step="<?php echo $s; ?>"><?php echo $s; ?></span>
+        <?php endforeach; ?>
     </div>
-
     <form id="scme-booking-form">
-
-        <div class="scme-form-step active" data-step="1">
-            <h2>Your Details</h2>
-            <div class="scme-form-field">
-                <label for="scme-client-name">Full Name *</label>
-                <input type="text" id="scme-client-name" name="client_name" required>
+        <?php foreach ($steps as $step => $fields): ?>
+        <div class="scme-form-step<?php if($step==1) echo ' active'; ?>" data-step="<?php echo $step; ?>">
+            <?php foreach ($fields as $f): ?>
+                <div class="scme-form-field">
+                    <label for="scme-<?php echo esc_attr($f['name']); ?>">
+                        <?php echo esc_html($f['label']); ?>
+                        <?php if (!empty($f['required'])) echo ' *'; ?>
+                    </label>
+                    <?php
+                    $type = $f['type'];
+                    $name = esc_attr($f['name']);
+                    $placeholder = esc_attr($f['placeholder'] ?? '');
+                    $required = !empty($f['required']) ? 'required' : '';
+                    $regex = !empty($f['regex']) ? esc_attr($f['regex']) : '';
+                    $field_id = 'scme-' . $name;
+                    switch ($type) {
+                        case 'textarea':
+                            echo "<textarea id='$field_id' name='$name' placeholder='$placeholder' $required></textarea>";
+                            break;
+                        case 'select':
+                            echo "<select id='$field_id' name='$name' $required>";
+                            echo "<option value=''>-- Select --</option>";
+                            $opts = explode(',', $f['options'] ?? '');
+                            foreach ($opts as $opt) {
+                                $opt = trim($opt);
+                                echo "<option value='" . esc_attr($opt) . "'>$opt</option>";
+                            }
+                            echo "</select>";
+                            break;
+                        case 'radio':
+                            $opts = explode(',', $f['options'] ?? '');
+                            foreach ($opts as $opt) {
+                                $opt = trim($opt);
+                                echo "<label><input type='radio' name='$name' value='" . esc_attr($opt) . "' $required> $opt</label> ";
+                            }
+                            break;
+                        case 'checkbox':
+                            $opts = explode(',', $f['options'] ?? '');
+                            if (count($opts) > 1) {
+                                foreach ($opts as $opt) {
+                                    $opt = trim($opt);
+                                    echo "<label><input type='checkbox' name='{$name}[]' value='" . esc_attr($opt) . "'> $opt</label> ";
+                                }
+                            } else {
+                                echo "<input type='checkbox' id='$field_id' name='$name' value='1' $required>";
+                            }
+                            break;
+                        default:
+                            echo "<input type='$type' id='$field_id' name='$name' placeholder='$placeholder' $required" .
+                                ($regex ? " pattern='$regex'" : "") . ">";
+                    }
+                    ?>
+                </div>
+            <?php endforeach; ?>
+            <div class="scme-form-step-buttons">
+                <?php if ($step > 1): ?>
+                    <button type="button" class="scme-prev-step">Previous</button>
+                <?php endif; ?>
+                <?php if ($step < $step_count): ?>
+                    <button type="button" class="scme-next-step">Next</button>
+                <?php else: ?>
+                    <button type="submit" id="scme-submit-booking">Submit</button>
+                <?php endif; ?>
             </div>
-            <div class="scme-form-field">
-                <label for="scme-client-email">Email *</label>
-                <input type="email" id="scme-client-email" name="client_email" required>
-            </div>
-            <div class="scme-form-field">
-                <label for="scme-client-phone">Phone Number</label>
-                <input type="tel" id="scme-client-phone" name="client_phone">
-            </div>
-            <div class="scme-form-field">
-                <label for="scme-service-select">Select Service *</label>
-                <select id="scme-service-select" name="service_id" required>
-                    <option value="">-- Select a Service --</option>
-                    <option value="1" data-duration="60" data-price="100.00" data-name="Standard Consultation">Standard Consultation (1 hour - $100)</option>
-                    <option value="2" data-duration="30" data-price="50.00" data-name="Quick Chat">Quick Chat (30 min - $50)</option>
-                    <option value="3" data-duration="120" data-price="200.00" data-name="Deep Dive Session">Deep Dive Session (2 hours - $200)</option>
-                </select>
-            </div>
-            <button type="button" class="scme-next-step">Next</button>
-        </div>
-
-        <div class="scme-form-step" data-step="2">
-            <h2>Select Date & Time</h2>
-            <div class="scme-form-field">
-                <label for="scme-date-picker">Select Date *</label>
-                <input type="date" id="scme-date-picker" name="selected_date" required>
-            </div>
-            <div class="scme-form-field">
-                <label>Available Times *</label>
-                <div id="scme-time-slots" class="scme-time-slots-grid">
-                    <p>Select a date to see available times.</p>
-                    </div>
-                <input type="hidden" id="scme-selected-start-time" name="selected_start_time" required>
-                <input type="hidden" id="scme-selected-end-time" name="selected_end_time" required>
-            </div>
-            <button type="button" class="scme-prev-step">Previous</button>
-            <button type="button" class="scme-next-step" id="scme-time-select-next" disabled>Next</button>
-        </div>
-
-        <div class="scme-form-step" data-step="3">
-            <h2>Confirm Your Booking</h2>
-            <div id="scme-booking-summary">
-                <p><strong>Service:</strong> <span id="summary-service-name"></span></p>
-                <p><strong>Date:</strong> <span id="summary-date"></span></p>
-                <p><strong>Time:</strong> <span id="summary-time"></span></p>
-                <p><strong>Price:</strong> $<span id="summary-price"></span></p>
-            </div>
-            <div class="scme-form-field">
-                <input type="checkbox" id="scme-agree-terms" name="agree_terms" required>
-                <label for="scme-agree-terms">I agree to the <a href="#" target="_blank">terms and conditions</a> *</label>
-            </div>
-            <input type="hidden" name="service_name_hidden" id="scme-service-name-hidden">
-            <input type="hidden" name="price_hidden" id="scme-price-hidden">
-            <button type="button" class="scme-prev-step">Previous</button>
-            <button type="submit" id="scme-submit-booking">Pay Now with PayPal</button>
             <div id="scme-form-message" style="margin-top: 15px; color: red;"></div>
         </div>
+        <?php endforeach; ?>
     </form>
 </div>
+<script>
+jQuery(function($){
+    let currentStep = 1;
+    const $form = $('#scme-booking-form');
+    const $formSteps = $('.scme-form-step');
+    const $stepIndicators = $('.scme-step-indicator');
+    function showStep(step) {
+        $formSteps.removeClass('active').hide();
+        $(`.scme-form-step[data-step="${step}"]`).addClass('active').show();
+        $stepIndicators.removeClass('active');
+        $(`.scme-step-indicator[data-step="${step}"]`).addClass('active');
+        currentStep = step;
+        $('html, body').animate({ scrollTop: $form.offset().top - 50 }, 300);
+    }
+    $('.scme-next-step').on('click', function() {
+        showStep(currentStep + 1);
+    });
+    $('.scme-prev-step').on('click', function() {
+        showStep(currentStep - 1);
+    });
+    showStep(1);
+    // Add custom validation if needed
+    $form.on('submit', function(e){
+        let valid = true;
+        $form.find('[required]').each(function(){
+            if (!$(this).val()) valid = false;
+        });
+        if (!valid) {
+            e.preventDefault();
+            $('.scme-form-step.active #scme-form-message').text('Please fill all required fields.');
+        }
+    });
+});
+</script>
