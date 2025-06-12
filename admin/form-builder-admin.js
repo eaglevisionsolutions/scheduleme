@@ -14,7 +14,7 @@ window.SCMEFormBuilderInit = function(initialFields) {
             fields.forEach(function(field, idx){
                 let label = field.label || field.type.charAt(0).toUpperCase() + field.type.slice(1);
                 let optionsDisplay = '';
-                if(field.type === 'radio' && Array.isArray(field.options)) {
+                if(['radio','select','checkbox'].includes(field.type) && Array.isArray(field.options)) {
                     optionsDisplay = '<br><small>Options: ' + field.options.map(opt => `${opt.label} (${opt.value})`).join(', ') + '</small>';
                 }
                 let html = `<div class="scme-form-builder-field" data-idx="${idx}">
@@ -32,14 +32,16 @@ window.SCMEFormBuilderInit = function(initialFields) {
                         <label>Step: <input type="number" name="step" value="${field.step||1}" min="1" style="width:60px;" /></label><br>
                         <label>Required: <input type="checkbox" name="required" ${field.required ? 'checked' : ''} /></label><br>
                         <label>Regex: <input type="text" name="regex" value="${field.regex||''}" /></label><br>
-                        ${( ['select','radio','checkbox'].includes(field.type) ? `<label>Options (comma separated): <input type="text" name="options" value="${field.options||''}" /></label><br>` : '' )}
-                        ${field.type === 'radio' ? `
-    <label>
-        Options:<br>
-        <textarea name="options" rows="4" style="width:98%;" placeholder="Label 1|value1\nLabel 2|value2">${field.options_raw || ''}</textarea>
-        <small>Enter one option per line as <code>Label|value</code></small>
-    </label><br>
-` : ''}
+                        ${(['radio','select','checkbox'].includes(field.type)) ? `
+                            <label>
+                                Options:<br>
+                                <textarea name="options" rows="4" style="width:98%;" placeholder="Label 1|value1\nLabel 2|value2">${field.options_raw || ''}</textarea>
+                                <small>
+                                    Enter one option per line as <code>Label|value</code>.<br>
+                                    ${field.type === 'checkbox' ? 'Checkboxes are limited to 2 options.' : ''}
+                                </small>
+                            </label><br>
+                        ` : ''}
                         <div style="margin-top:8px;">
                             <button type="submit" class="button button-primary button-small">Save</button>
                             <button type="button" class="button button-secondary button-small scme-cancel-edit">Cancel</button>
@@ -149,19 +151,19 @@ window.SCMEFormBuilderInit = function(initialFields) {
             f.step = parseInt($form.find('[name="step"]').val()) || 1;
             f.required = $form.find('[name="required"]').is(':checked');
             f.regex = $form.find('[name="regex"]').val();
-            if(f.type === 'radio') {
-                // Store the raw textarea for editing
+            if(['radio','select','checkbox'].includes(f.type)) {
                 f.options_raw = $form.find('[name="options"]').val();
-                // Parse into array of {label, value}
-                f.options = f.options_raw
+                let optionsArr = f.options_raw
                     .split('\n')
                     .map(line => {
                         const [label, value] = line.split('|');
                         return { label: (label||'').trim(), value: (value||'').trim() };
                     })
                     .filter(opt => opt.label && opt.value);
-            } else if(['select','checkbox'].includes(f.type)) {
-                f.options = $form.find('[name="options"]').val();
+                if(f.type === 'checkbox') {
+                    optionsArr = optionsArr.slice(0, 2); // Limit to 2 options for checkboxes
+                }
+                f.options = optionsArr;
             }
             fields[idx] = f;
             renderFields();
