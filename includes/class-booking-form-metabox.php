@@ -47,6 +47,7 @@ class SCME_Booking_Form_Metabox {
             <div class="scme-widget" data-type="color">Color</div>
             <div class="scme-widget" data-type="range">Range</div>
             <div class="scme-widget" data-type="hidden">Hidden</div>
+            <div class="scme-widget" data-type="step">Step</div>
         </div>
         <div id="scme-form-builder-dropzone" class="scme-form-builder-dropzone"></div>
         <input type="hidden" id="scme_form_fields_input" name="scme_form_fields" value='<?php echo esc_attr(json_encode($fields)); ?>' />

@@ -12,49 +12,64 @@ window.SCMEFormBuilderInit = function(initialFields) {
                 $dropzone.append('<div style="color:#888;">Drag widgets here to build your form</div>');
             }
             fields.forEach(function(field, idx){
-                let label = field.label || field.type.charAt(0).toUpperCase() + field.type.slice(1);
-                let optionsDisplay = '';
-                if(['radio','select','checkbox'].includes(field.type) && Array.isArray(field.options)) {
-                    optionsDisplay = '<br><small>Options: ' + field.options.map(opt => `${opt.label} (${opt.value})`).join(', ') + '</small>';
-                }
-                let html = `<div class="scme-form-builder-field" data-idx="${idx}">
-                    <strong>${label}</strong> <span style="color:#888;">[${field.type}]</span>
-                    <br><small>${field.name || ''}</small>
-                    ${optionsDisplay}
-                    <div class="scme-field-actions">
-                        <button type="button" class="scme-edit-field button button-small">Edit</button>
-                        <button type="button" class="scme-remove-field button button-small">Remove</button>
-                    </div>
-                    <form class="scme-edit-field-form" style="display:none; margin-top:10px; background:#f9f9f9; border:1px solid #eee; padding:10px; border-radius:4px;">
-                        <label>Label: <input type="text" name="label" value="${field.label||''}" /></label><br>
-                        <label>Field Name: <input type="text" name="name" value="${field.name||''}" /></label><br>
-                        <label>Placeholder: <input type="text" name="placeholder" value="${field.placeholder||''}" /></label><br>
-                        <label>Step: <input type="number" name="step" value="${field.step||1}" min="1" style="width:60px;" /></label><br>
-                        <label>Required: <input type="checkbox" name="required" ${field.required ? 'checked' : ''} /></label><br>
-                        <label>Regex: <input type="text" name="regex" value="${field.regex||''}" /></label><br>
-                        ${(['radio','select','checkbox'].includes(field.type)) ? `
-                            <label>
-                                Options:<br>
-                                <textarea name="options" rows="4" style="width:98%;" placeholder="Label 1|value1\nLabel 2|value2">${field.options_raw || ''}</textarea>
-                                <small>
-                                    Enter one option per line as <code>Label|value</code>.<br>
-                                    ${field.type === 'checkbox' ? 'Checkboxes are limited to 2 options.' : ''}
-                                </small>
-                            </label><br>
-                        ` : ''}
-                        <div style="margin-top:8px;">
+                if(field.type === 'step') {
+                    // Render step header with edit
+                    let html = `<div class="scme-form-builder-step" data-idx="${idx}" style="background:#f1f1f1;padding:8px 10px;margin:10px 0 0 0;border-left:4px solid #0073aa;">
+                        <strong>Step: <span class="scme-step-label">${field.label || 'Step'}</span></strong>
+                        <button type="button" class="scme-edit-step button button-small" style="margin-left:10px;">Edit</button>
+                        <button type="button" class="scme-remove-field button button-small" style="float:right;">Remove</button>
+                        <form class="scme-edit-step-form" style="display:none;margin-top:8px;">
+                            <input type="text" name="step_label" value="${field.label||''}" style="width:70%;" />
                             <button type="submit" class="button button-primary button-small">Save</button>
-                            <button type="button" class="button button-secondary button-small scme-cancel-edit">Cancel</button>
+                            <button type="button" class="button button-secondary button-small scme-cancel-edit-step">Cancel</button>
+                        </form>
+                    </div>`;
+                    $dropzone.append(html);
+                } else {
+                    // Render normal field
+                    let label = field.label || field.type.charAt(0).toUpperCase() + field.type.slice(1);
+                    let optionsDisplay = '';
+                    if(['radio','select','checkbox'].includes(field.type) && Array.isArray(field.options)) {
+                        optionsDisplay = '<br><small>Options: ' + field.options.map(opt => `${opt.label} (${opt.value})`).join(', ') + '</small>';
+                    }
+                    let html = `<div class="scme-form-builder-field" data-idx="${idx}">
+                        <strong>${label}</strong> <span style="color:#888;">[${field.type}]</span>
+                        <br><small>${field.name || ''}</small>
+                        ${optionsDisplay}
+                        <div class="scme-field-actions">
+                            <button type="button" class="scme-edit-field button button-small">Edit</button>
+                            <button type="button" class="scme-remove-field button button-small">Remove</button>
                         </div>
-                    </form>
-                </div>`;
-                $dropzone.append(html);
+                        <form class="scme-edit-field-form" style="display:none; margin-top:10px; background:#f9f9f9; border:1px solid #eee; padding:10px; border-radius:4px;">
+                            <label>Label: <input type="text" name="label" value="${field.label||''}" /></label><br>
+                            <label>Field Name: <input type="text" name="name" value="${field.name||''}" /></label><br>
+                            <label>Placeholder: <input type="text" name="placeholder" value="${field.placeholder||''}" /></label><br>
+                            <label>Required: <input type="checkbox" name="required" ${field.required ? 'checked' : ''} /></label><br>
+                            <label>Regex: <input type="text" name="regex" value="${field.regex||''}" /></label><br>
+                            ${(['radio','select','checkbox'].includes(field.type)) ? `
+                                <label>
+                                    Options:<br>
+                                    <textarea name="options" rows="4" style="width:98%;" placeholder="Label 1|value1\nLabel 2|value2">${field.options_raw || ''}</textarea>
+                                    <small>
+                                        Enter one option per line as <code>Label|value</code>.<br>
+                                        ${field.type === 'checkbox' ? 'Checkboxes are limited to 2 options.' : ''}
+                                    </small>
+                                </label><br>
+                            ` : ''}
+                            <div style="margin-top:8px;">
+                                <button type="submit" class="button button-primary button-small">Save</button>
+                                <button type="button" class="button button-secondary button-small scme-cancel-edit">Cancel</button>
+                            </div>
+                        </form>
+                    </div>`;
+                    $dropzone.append(html);
+                }
             });
             $input.val(JSON.stringify(fields));
         }
         renderFields();
 
-        // Make widgets draggable (but not removable from palette)
+        // Make widgets draggable
         $('.scme-widget').draggable({
             helper: "clone",
             connectToSortable: "#scme-form-builder-dropzone",
@@ -68,33 +83,37 @@ window.SCMEFormBuilderInit = function(initialFields) {
 
         // Make dropzone sortable and accept external widgets
         $dropzone.sortable({
-            items: '.scme-form-builder-field',
+            items: '.scme-form-builder-field, .scme-form-builder-step',
             placeholder: 'scme-form-builder-placeholder',
             receive: function(event, ui) {
-                // Only add new field if coming from palette
                 if (ui.item.hasClass('scme-widget')) {
                     let type = ui.item.data('type');
-                    let label = type.charAt(0).toUpperCase() + type.slice(1);
-                    let name = type + '_' + (fields.length+1);
-                    let step = 1;
-                    let required = false;
-                    let regex = '';
-                    let options = '';
-                    if(['select','radio','checkbox'].includes(type)) {
-                        options = 'Option 1,Option 2';
+                    if(type === 'step') {
+                        let newStep = {type: 'step', label: 'Step'};
+                        let idx = ui.item.index();
+                        fields.splice(idx, 0, newStep);
+                        renderFields();
+                        showEditStepForm(idx); // Open step edit form immediately
+                    } else {
+                        let label = type.charAt(0).toUpperCase() + type.slice(1);
+                        let name = type + '_' + (fields.length+1);
+                        let required = false;
+                        let regex = '';
+                        let options = '';
+                        let options_raw = '';
+                        if(['select','radio','checkbox'].includes(type)) {
+                            options_raw = 'Option 1|option1\nOption 2|option2';
+                        }
+                        let newField = {type, label, name, placeholder:'', required, regex, options, options_raw};
+                        let idx = ui.item.index();
+                        fields.splice(idx, 0, newField);
+                        renderFields();
+                        showEditForm(idx); // Open inline edit form immediately
                     }
-                    let newField = {type, label, name, placeholder:'', step, required, regex, options};
-                    // Insert at correct position
-                    let idx = ui.item.index();
-                    fields.splice(idx, 0, newField);
-                    renderFields();
-                    showEditForm(idx); // Open inline edit form immediately
-                    // Remove the palette widget clone
                     setTimeout(function(){ $dropzone.find('.scme-widget').remove(); }, 10);
                 } else {
-                    // Reorder existing fields
                     let newOrder = [];
-                    $dropzone.children('.scme-form-builder-field').each(function(){
+                    $dropzone.children('.scme-form-builder-field, .scme-form-builder-step').each(function(){
                         let idx = $(this).data('idx');
                         newOrder.push(fields[idx]);
                     });
@@ -103,10 +122,9 @@ window.SCMEFormBuilderInit = function(initialFields) {
                 }
             },
             update: function(event, ui) {
-                // Only reorder if not from palette
                 if (!ui.item.hasClass('scme-widget')) {
                     let newOrder = [];
-                    $dropzone.children('.scme-form-builder-field').each(function(){
+                    $dropzone.children('.scme-form-builder-field, .scme-form-builder-step').each(function(){
                         let idx = $(this).data('idx');
                         newOrder.push(fields[idx]);
                     });
@@ -116,10 +134,10 @@ window.SCMEFormBuilderInit = function(initialFields) {
             }
         });
 
-        // Remove Field
+        // Remove Field or Step
         $dropzone.on('click', '.scme-remove-field', function(){
-            let idx = $(this).closest('.scme-form-builder-field').data('idx');
-            if (confirm('Remove this field?')) {
+            let idx = $(this).closest('[data-idx]').data('idx');
+            if (confirm('Remove this item?')) {
                 fields.splice(idx,1);
                 renderFields();
             }
@@ -128,17 +146,17 @@ window.SCMEFormBuilderInit = function(initialFields) {
         // Edit Field (show inline form)
         $dropzone.on('click', '.scme-edit-field', function(){
             let $field = $(this).closest('.scme-form-builder-field');
-            $dropzone.find('.scme-edit-field-form').hide(); // Hide any open forms
+            $dropzone.find('.scme-edit-field-form').hide();
             $field.find('.scme-edit-field-form').slideDown(150);
         });
 
-        // Cancel Edit
+        // Cancel Edit Field
         $dropzone.on('click', '.scme-cancel-edit', function(e){
             e.preventDefault();
             $(this).closest('.scme-edit-field-form').slideUp(150);
         });
 
-        // Save Edit
+        // Save Edit Field
         $dropzone.on('submit', '.scme-edit-field-form', function(e){
             e.preventDefault();
             let $form = $(this);
@@ -148,7 +166,6 @@ window.SCMEFormBuilderInit = function(initialFields) {
             f.label = $form.find('[name="label"]').val();
             f.name = $form.find('[name="name"]').val();
             f.placeholder = $form.find('[name="placeholder"]').val();
-            f.step = parseInt($form.find('[name="step"]').val()) || 1;
             f.required = $form.find('[name="required"]').is(':checked');
             f.regex = $form.find('[name="regex"]').val();
             if(['radio','select','checkbox'].includes(f.type)) {
@@ -169,11 +186,42 @@ window.SCMEFormBuilderInit = function(initialFields) {
             renderFields();
         });
 
+        // Edit Step (show inline form)
+        $dropzone.on('click', '.scme-edit-step', function(){
+            let $step = $(this).closest('.scme-form-builder-step');
+            $dropzone.find('.scme-edit-step-form').hide();
+            $step.find('.scme-edit-step-form').slideDown(150);
+        });
+
+        // Cancel Edit Step
+        $dropzone.on('click', '.scme-cancel-edit-step', function(e){
+            e.preventDefault();
+            $(this).closest('.scme-edit-step-form').slideUp(150);
+        });
+
+        // Save Edit Step
+        $dropzone.on('submit', '.scme-edit-step-form', function(e){
+            e.preventDefault();
+            let $form = $(this);
+            let $step = $form.closest('.scme-form-builder-step');
+            let idx = $step.data('idx');
+            let f = fields[idx];
+            f.label = $form.find('[name="step_label"]').val();
+            fields[idx] = f;
+            renderFields();
+        });
+
         // Helper to open edit form for a field
         function showEditForm(idx) {
             let $field = $dropzone.find(`.scme-form-builder-field[data-idx="${idx}"]`);
             $dropzone.find('.scme-edit-field-form').hide();
             $field.find('.scme-edit-field-form').slideDown(150);
+        }
+        // Helper to open edit form for a step
+        function showEditStepForm(idx) {
+            let $step = $dropzone.find(`.scme-form-builder-step[data-idx="${idx}"]`);
+            $dropzone.find('.scme-edit-step-form').hide();
+            $step.find('.scme-edit-step-form').slideDown(150);
         }
     });
 };
