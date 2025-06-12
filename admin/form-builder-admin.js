@@ -20,6 +20,19 @@ window.SCMEFormBuilderInit = function(initialFields) {
                         <button type="button" class="scme-edit-field button button-small">Edit</button>
                         <button type="button" class="scme-remove-field button button-small">Remove</button>
                     </div>
+                    <form class="scme-edit-field-form" style="display:none; margin-top:10px; background:#f9f9f9; border:1px solid #eee; padding:10px; border-radius:4px;">
+                        <label>Label: <input type="text" name="label" value="${field.label||''}" /></label><br>
+                        <label>Field Name: <input type="text" name="name" value="${field.name||''}" /></label><br>
+                        <label>Placeholder: <input type="text" name="placeholder" value="${field.placeholder||''}" /></label><br>
+                        <label>Step: <input type="number" name="step" value="${field.step||1}" min="1" style="width:60px;" /></label><br>
+                        <label>Required: <input type="checkbox" name="required" ${field.required ? 'checked' : ''} /></label><br>
+                        <label>Regex: <input type="text" name="regex" value="${field.regex||''}" /></label><br>
+                        ${( ['select','radio','checkbox'].includes(field.type) ? `<label>Options (comma separated): <input type="text" name="options" value="${field.options||''}" /></label><br>` : '' )}
+                        <div style="margin-top:8px;">
+                            <button type="submit" class="button button-primary button-small">Save</button>
+                            <button type="button" class="button button-secondary button-small scme-cancel-edit">Cancel</button>
+                        </div>
+                    </form>
                 </div>`;
                 $dropzone.append(html);
             });
@@ -61,7 +74,7 @@ window.SCMEFormBuilderInit = function(initialFields) {
                     let idx = ui.item.index();
                     fields.splice(idx, 0, newField);
                     renderFields();
-                    editField(idx); // Open edit dialog immediately
+                    showEditForm(idx); // Open inline edit form immediately
                     // Remove the palette widget clone
                     setTimeout(function(){ $dropzone.find('.scme-widget').remove(); }, 10);
                 } else {
@@ -98,28 +111,44 @@ window.SCMEFormBuilderInit = function(initialFields) {
             }
         });
 
-        // Edit Field
+        // Edit Field (show inline form)
         $dropzone.on('click', '.scme-edit-field', function(){
-            let idx = $(this).closest('.scme-form-builder-field').data('idx');
-            editField(idx);
+            let $field = $(this).closest('.scme-form-builder-field');
+            $dropzone.find('.scme-edit-field-form').hide(); // Hide any open forms
+            $field.find('.scme-edit-field-form').slideDown(150);
         });
 
-        function editField(idx) {
+        // Cancel Edit
+        $dropzone.on('click', '.scme-cancel-edit', function(e){
+            e.preventDefault();
+            $(this).closest('.scme-edit-field-form').slideUp(150);
+        });
+
+        // Save Edit
+        $dropzone.on('submit', '.scme-edit-field-form', function(e){
+            e.preventDefault();
+            let $form = $(this);
+            let $field = $form.closest('.scme-form-builder-field');
+            let idx = $field.data('idx');
             let f = fields[idx];
-            let label = prompt('Label:', f.label);
-            let name = prompt('Field name:', f.name);
-            let placeholder = prompt('Placeholder:', f.placeholder);
-            let required = confirm('Required? (OK = Yes, Cancel = No)');
-            let regex = prompt('Custom validation regex (optional):', f.regex||'');
-            let step = prompt('Step number (for multi-step):', f.step||1);
-            let options = f.options || '';
+            f.label = $form.find('[name="label"]').val();
+            f.name = $form.find('[name="name"]').val();
+            f.placeholder = $form.find('[name="placeholder"]').val();
+            f.step = parseInt($form.find('[name="step"]').val()) || 1;
+            f.required = $form.find('[name="required"]').is(':checked');
+            f.regex = $form.find('[name="regex"]').val();
             if(['select','radio','checkbox'].includes(f.type)) {
-                options = prompt('Options (comma separated):', options);
+                f.options = $form.find('[name="options"]').val();
             }
-            f.label = label; f.name = name; f.placeholder = placeholder;
-            f.required = required; f.regex = regex; f.step = parseInt(step)||1; f.options = options;
             fields[idx] = f;
             renderFields();
+        });
+
+        // Helper to open edit form for a field
+        function showEditForm(idx) {
+            let $field = $dropzone.find(`.scme-form-builder-field[data-idx="${idx}"]`);
+            $dropzone.find('.scme-edit-field-form').hide();
+            $field.find('.scme-edit-field-form').slideDown(150);
         }
     });
 };
