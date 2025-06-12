@@ -13,9 +13,14 @@ window.SCMEFormBuilderInit = function(initialFields) {
             }
             fields.forEach(function(field, idx){
                 let label = field.label || field.type.charAt(0).toUpperCase() + field.type.slice(1);
+                let optionsDisplay = '';
+                if(field.type === 'radio' && Array.isArray(field.options)) {
+                    optionsDisplay = '<br><small>Options: ' + field.options.map(opt => `${opt.label} (${opt.value})`).join(', ') + '</small>';
+                }
                 let html = `<div class="scme-form-builder-field" data-idx="${idx}">
                     <strong>${label}</strong> <span style="color:#888;">[${field.type}]</span>
                     <br><small>${field.name || ''}</small>
+                    ${optionsDisplay}
                     <div class="scme-field-actions">
                         <button type="button" class="scme-edit-field button button-small">Edit</button>
                         <button type="button" class="scme-remove-field button button-small">Remove</button>
@@ -28,6 +33,13 @@ window.SCMEFormBuilderInit = function(initialFields) {
                         <label>Required: <input type="checkbox" name="required" ${field.required ? 'checked' : ''} /></label><br>
                         <label>Regex: <input type="text" name="regex" value="${field.regex||''}" /></label><br>
                         ${( ['select','radio','checkbox'].includes(field.type) ? `<label>Options (comma separated): <input type="text" name="options" value="${field.options||''}" /></label><br>` : '' )}
+                        ${field.type === 'radio' ? `
+    <label>
+        Options:<br>
+        <textarea name="options" rows="4" style="width:98%;" placeholder="Label 1|value1\nLabel 2|value2">${field.options_raw || ''}</textarea>
+        <small>Enter one option per line as <code>Label|value</code></small>
+    </label><br>
+` : ''}
                         <div style="margin-top:8px;">
                             <button type="submit" class="button button-primary button-small">Save</button>
                             <button type="button" class="button button-secondary button-small scme-cancel-edit">Cancel</button>
@@ -137,7 +149,18 @@ window.SCMEFormBuilderInit = function(initialFields) {
             f.step = parseInt($form.find('[name="step"]').val()) || 1;
             f.required = $form.find('[name="required"]').is(':checked');
             f.regex = $form.find('[name="regex"]').val();
-            if(['select','radio','checkbox'].includes(f.type)) {
+            if(f.type === 'radio') {
+                // Store the raw textarea for editing
+                f.options_raw = $form.find('[name="options"]').val();
+                // Parse into array of {label, value}
+                f.options = f.options_raw
+                    .split('\n')
+                    .map(line => {
+                        const [label, value] = line.split('|');
+                        return { label: (label||'').trim(), value: (value||'').trim() };
+                    })
+                    .filter(opt => opt.label && opt.value);
+            } else if(['select','checkbox'].includes(f.type)) {
                 f.options = $form.find('[name="options"]').val();
             }
             fields[idx] = f;
