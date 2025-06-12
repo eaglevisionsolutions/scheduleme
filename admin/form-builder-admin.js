@@ -14,7 +14,7 @@ window.SCMEFormBuilderInit = function(initialFields) {
             fields.forEach(function(field, idx){
                 if(field.type === 'step') {
                     // Render step header with edit
-                    let html = `<div class="scme-form-builder-step" data-idx="${idx}" style="background:#f1f1f1;padding:8px 10px;margin:10px 0 0 0;border-left:4px solid #0073aa;">
+                    let html = `<div class="scme-form-builder-item scme-form-builder-step" data-idx="${idx}" style="background:#f1f1f1;padding:8px 10px;margin:10px 0 0 0;border-left:4px solid #0073aa;">
                         <strong>Step: <span class="scme-step-label">${field.label || 'Step'}</span></strong>
                         <button type="button" class="scme-edit-step button button-small" style="margin-left:10px;">Edit</button>
                         <button type="button" class="scme-remove-field button button-small" style="float:right;">Remove</button>
@@ -27,7 +27,7 @@ window.SCMEFormBuilderInit = function(initialFields) {
                     $dropzone.append(html);
                 } else if(field.type === 'heading') {
                     // Render heading with edit
-                    let html = `<div class="scme-form-builder-heading" data-idx="${idx}">
+                    let html = `<div class="scme-form-builder-item scme-form-builder-heading" data-idx="${idx}">
                         <strong>Heading: ${field.text || 'Heading'}</strong>
                         <button type="button" class="scme-edit-heading button button-small" style="margin-left:10px;">Edit</button>
                         <button type="button" class="scme-remove-field button button-small" style="float:right;">Remove</button>
@@ -55,7 +55,7 @@ window.SCMEFormBuilderInit = function(initialFields) {
                     if(['radio','select','checkbox'].includes(field.type) && Array.isArray(field.options)) {
                         optionsDisplay = '<br><small>Options: ' + field.options.map(opt => `${opt.label} (${opt.value})`).join(', ') + '</small>';
                     }
-                    let html = `<div class="scme-form-builder-field" data-idx="${idx}">
+                    let html = `<div class="scme-form-builder-item scme-form-builder-field" data-idx="${idx}">
                         <strong>${label}</strong> <span style="color:#888;">[${field.type}]</span>
                         <br><small>${field.name || ''}</small>
                         ${optionsDisplay}
@@ -109,6 +109,7 @@ window.SCMEFormBuilderInit = function(initialFields) {
         $dropzone.sortable({
             items: '.scme-form-builder-item',
             placeholder: 'scme-form-builder-placeholder',
+            handle: null, // or specify a handle if you want (e.g., '.scme-drag-handle')
             receive: function(event, ui) {
                 if (ui.item.hasClass('scme-widget')) {
                     let type = ui.item.data('type');
