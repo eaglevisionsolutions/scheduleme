@@ -31,10 +31,12 @@ $step_count = count($steps);
         <div class="scme-form-step<?php if($step==1) echo ' active'; ?>" data-step="<?php echo $step; ?>">
             <?php foreach ($fields as $f): ?>
                 <div class="scme-form-field">
-                    <label for="scme-<?php echo esc_attr($f['name']); ?>">
-                        <?php echo esc_html($f['label']); ?>
-                        <?php if (!empty($f['required'])) echo ' *'; ?>
-                    </label>
+                    <?php if ($f['show_label'] !== false): // Show label unless explicitly set to false ?>
+                        <label for="scme-<?php echo esc_attr($f['name']); ?>">
+                            <?php echo esc_html($f['label']); ?>
+                            <?php if (!empty($f['required'])) echo ' *'; ?>
+                        </label>
+                    <?php endif; ?>
                     <?php
                     $type = $f['type'];
                     $name = esc_attr($f['name']);
@@ -73,6 +75,10 @@ $step_count = count($steps);
                             } else {
                                 echo "<input type='checkbox' id='$field_id' name='$name' value='1' $required>";
                             }
+                            break;
+                        case 'heading':
+                            $level = in_array($f['level'], ['h1','h2','h3','h4','h5','h6']) ? $f['level'] : 'h2';
+                            echo '<' . $level . '>' . esc_html($f['text']) . '</' . $level . '>';
                             break;
                         default:
                             echo "<input type='$type' id='$field_id' name='$name' placeholder='$placeholder' $required" .

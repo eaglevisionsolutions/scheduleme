@@ -25,6 +25,29 @@ window.SCMEFormBuilderInit = function(initialFields) {
                         </form>
                     </div>`;
                     $dropzone.append(html);
+                } else if(field.type === 'heading') {
+                    // Render heading with edit
+                    let html = `<div class="scme-form-builder-heading" data-idx="${idx}">
+                        <strong>Heading: ${field.text || 'Heading'}</strong>
+                        <button type="button" class="scme-edit-heading button button-small" style="margin-left:10px;">Edit</button>
+                        <button type="button" class="scme-remove-field button button-small" style="float:right;">Remove</button>
+                        <form class="scme-edit-heading-form" style="display:none;margin-top:8px;">
+                            <input type="text" name="heading_text" value="${field.text||''}" style="width:70%;" />
+                             <label>Heading Level:
+        <select name="heading_level">
+            <option value="h1" ${field.level === 'h1' ? 'selected' : ''}>H1</option>
+            <option value="h2" ${field.level === 'h2' ? 'selected' : ''}>H2</option>
+            <option value="h3" ${field.level === 'h3' ? 'selected' : ''}>H3</option>
+            <option value="h4" ${field.level === 'h4' ? 'selected' : ''}>H4</option>
+            <option value="h5" ${field.level === 'h5' ? 'selected' : ''}>H5</option>
+            <option value="h6" ${field.level === 'h6' ? 'selected' : ''}>H6</option>
+        </select>
+    </label><br>
+                            <button type="submit" class="button button-primary button-small">Save</button>
+                            <button type="button" class="button button-secondary button-small scme-cancel-edit-heading">Cancel</button>
+                        </form>
+                    </div>`;
+                    $dropzone.append(html);
                 } else {
                     // Render normal field
                     let label = field.label || field.type.charAt(0).toUpperCase() + field.type.slice(1);
@@ -42,6 +65,7 @@ window.SCMEFormBuilderInit = function(initialFields) {
                         </div>
                         <form class="scme-edit-field-form" style="display:none; margin-top:10px; background:#f9f9f9; border:1px solid #eee; padding:10px; border-radius:4px;">
                             <label>Label: <input type="text" name="label" value="${field.label||''}" /></label><br>
+                            <label>Show Label: <input type="checkbox" name="show_label" ${field.show_label !== false ? 'checked' : ''} /></label><br>
                             <label>Field Name: <input type="text" name="name" value="${field.name||''}" /></label><br>
                             <label>Placeholder: <input type="text" name="placeholder" value="${field.placeholder||''}" /></label><br>
                             <label>Required: <input type="checkbox" name="required" ${field.required ? 'checked' : ''} /></label><br>
@@ -207,6 +231,32 @@ window.SCMEFormBuilderInit = function(initialFields) {
             let idx = $step.data('idx');
             let f = fields[idx];
             f.label = $form.find('[name="step_label"]').val();
+            fields[idx] = f;
+            renderFields();
+        });
+
+        // Edit Heading (show inline form)
+        $dropzone.on('click', '.scme-edit-heading', function(){
+            let $heading = $(this).closest('.scme-form-builder-heading');
+            $dropzone.find('.scme-edit-heading-form').hide();
+            $heading.find('.scme-edit-heading-form').slideDown(150);
+        });
+
+        // Cancel Edit Heading
+        $dropzone.on('click', '.scme-cancel-edit-heading', function(e){
+            e.preventDefault();
+            $(this).closest('.scme-edit-heading-form').slideUp(150);
+        });
+
+        // Save Edit Heading
+        $dropzone.on('submit', '.scme-edit-heading-form', function(e){
+            e.preventDefault();
+            let $form = $(this);
+            let $heading = $form.closest('.scme-form-builder-heading');
+            let idx = $heading.data('idx');
+            let f = fields[idx];
+            f.text = $form.find('[name="heading_text"]').val();
+            f.level = $form.find('[name="heading_level"]').val() || 'h2';
             fields[idx] = f;
             renderFields();
         });
