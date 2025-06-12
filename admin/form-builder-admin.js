@@ -123,8 +123,3 @@ window.SCMEFormBuilderInit = function(initialFields) {
         }
     });
 };
-
-// Initialize with existing fields if available
-if(typeof window.SCMEFormBuilderInit === "function"){ 
-    window.SCMEFormBuilderInit(' . json_encode($fields) . ');
-}

@@ -136,6 +136,21 @@ function scme_admin_enqueue_form_builder_script($hook) {
         wp_enqueue_script('jquery-ui-sortable');
         wp_enqueue_script('scme-form-builder-admin', SCME_PLUGIN_URL . 'admin/form-builder-admin.js', array('jquery', 'jquery-ui-draggable', 'jquery-ui-sortable'), SCME_VERSION, true);
         wp_enqueue_style('SCME-style', SCME_PLUGIN_URL . 'public/css/style.css', array(), SCME_VERSION);
+
+        // --- FIX: Pass fields as an array to JS ---
+        $fields = [];
+        if (isset($post) && $post->post_type === 'scme_booking_form') {
+            $fields = get_post_meta($post->ID, '_scme_form_fields', true);
+            // If fields are stored as JSON string, decode them
+            if (is_string($fields)) {
+                $fields = json_decode($fields, true);
+            }
+            if (!is_array($fields)) {
+                $fields = [];
+            }
+        }
+        $inline_js = 'if (typeof window.SCMEFormBuilderInit === "function") { window.SCMEFormBuilderInit(' . json_encode($fields) . '); }';
+        wp_add_inline_script('scme-form-builder-admin', $inline_js);
     }
 }
 add_action('admin_enqueue_scripts', 'scme_admin_enqueue_form_builder_script');
