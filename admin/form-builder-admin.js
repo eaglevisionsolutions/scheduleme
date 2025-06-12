@@ -107,7 +107,7 @@ window.SCMEFormBuilderInit = function(initialFields) {
 
         // Make dropzone sortable and accept external widgets
         $dropzone.sortable({
-            items: '.scme-form-builder-field, .scme-form-builder-step',
+            items: '.scme-form-builder-item',
             placeholder: 'scme-form-builder-placeholder',
             receive: function(event, ui) {
                 if (ui.item.hasClass('scme-widget')) {
@@ -137,7 +137,7 @@ window.SCMEFormBuilderInit = function(initialFields) {
                     setTimeout(function(){ $dropzone.find('.scme-widget').remove(); }, 10);
                 } else {
                     let newOrder = [];
-                    $dropzone.children('.scme-form-builder-field, .scme-form-builder-step').each(function(){
+                    $dropzone.children('.scme-form-builder-item').each(function(){
                         let idx = $(this).data('idx');
                         newOrder.push(fields[idx]);
                     });
@@ -148,7 +148,7 @@ window.SCMEFormBuilderInit = function(initialFields) {
             update: function(event, ui) {
                 if (!ui.item.hasClass('scme-widget')) {
                     let newOrder = [];
-                    $dropzone.children('.scme-form-builder-field, .scme-form-builder-step').each(function(){
+                    $dropzone.children('.scme-form-builder-item').each(function(){
                         let idx = $(this).data('idx');
                         newOrder.push(fields[idx]);
                     });
