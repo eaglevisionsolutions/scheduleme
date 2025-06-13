@@ -29,13 +29,12 @@ $step_count = count($steps);
         <div class="scme-form-step<?php if($step==1) echo ' active'; ?>" data-step="<?php echo $step; ?>">
             <?php foreach ($fields as $f): ?>
                 <div class="scme-form-field">
-                    <?php if ($f['show_label'] !== false): // Show label unless explicitly set to false ?>
-                        <label for="scme-<?php echo esc_attr($f['name']); ?>">
-                            <?php echo esc_html($f['label']); ?>
-                            <?php if (!empty($f['required'])) echo ' *'; ?>
-                        </label>
-                    <?php endif; ?>
                     <?php
+                    // Show label if not explicitly set to false
+                    if (($f['show_label'] ?? true) && !empty($f['label'])) {
+                        echo '<label for="' . esc_attr($f['name'] ?? '') . '">' . esc_html($f['label']) . '</label>';
+                    }
+
                     $type = $f['type'];
                     $name = esc_attr($f['name']);
                     $placeholder = esc_attr($f['placeholder'] ?? '');
@@ -49,10 +48,24 @@ $step_count = count($steps);
                         case 'select':
                             echo "<select id='$field_id' name='$name' $required>";
                             echo "<option value=''>-- Select --</option>";
-                            $opts = explode(',', $f['options'] ?? '');
-                            foreach ($opts as $opt) {
-                                $opt = trim($opt);
-                                echo "<option value='" . esc_attr($opt) . "'>$opt</option>";
+                            // Handle options for select, radio, checkbox
+                            $options = [];
+                            if (isset($f['options'])) {
+                                if (is_array($f['options'])) {
+                                    $options = $f['options'];
+                                } elseif (is_string($f['options'])) {
+                                    $options = array_map('trim', explode(',', $f['options']));
+                                }
+                            }
+                            foreach ($options as $opt) {
+                                // If $opt is an array with label/value (from new builder), use those
+                                if (is_array($opt) && isset($opt['label'], $opt['value'])) {
+                                    $label = $opt['label'];
+                                    $value = $opt['value'];
+                                } else {
+                                    $label = $value = $opt;
+                                }
+                                echo "<option value='" . esc_attr($value) . "'>$label</option>";
                             }
                             echo "</select>";
                             break;
