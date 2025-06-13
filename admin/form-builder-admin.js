@@ -201,6 +201,7 @@ window.SCMEFormBuilderInit = function(initialFields) {
             f.placeholder = $form.find('[name="placeholder"]').val();
             f.required = $form.find('[name="required"]').is(':checked');
             f.regex = $form.find('[name="regex"]').val();
+            f.show_label = $form.find('[name="show_label"]').is(':checked');
             if(['radio','select','checkbox'].includes(f.type)) {
                 f.options_raw = $form.find('[name="options"]').val();
                 let optionsArr = f.options_raw
