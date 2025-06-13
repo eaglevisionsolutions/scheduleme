@@ -30,28 +30,45 @@ $step_count = count($steps);
             <?php foreach ($fields as $f): ?>
                 <div class="scme-form-field">
                     <?php
-                    // Only show label for input fields (not step, heading, recaptcha)
-                    if (
-                        !in_array($f['type'], ['step', 'heading', 'recaptcha_v2', 'recaptcha_v3'])
-                        && (($f['show_label'] ?? true) && !empty($f['label']))
-                    ) {
-                        echo '<label for="' . esc_attr($f['name'] ?? '') . '">' . esc_html($f['label']) . '</label>';
-                    }
-
                     $type = $f['type'];
                     $name = esc_attr($f['name'] ?? '');
                     $placeholder = esc_attr($f['placeholder'] ?? '');
                     $required = !empty($f['required']) ? 'required' : '';
                     $regex = !empty($f['regex']) ? esc_attr($f['regex']) : '';
                     $field_id = 'scme-' . $name;
+
+                    // Only show label for input fields (not step, heading, recaptcha)
+                    if (
+                        !in_array($type, ['step', 'heading', 'recaptcha_v2', 'recaptcha_v3'])
+                        && (($f['show_label'] ?? true) && !empty($f['label']))
+                    ) {
+                        echo '<label for="' . esc_attr($f['name'] ?? '') . '">' . esc_html($f['label']) . '</label>';
+                    }
+
                     switch ($type) {
+                        case 'step':
+                            // Do nothing or output a step divider if you want
+                            break;
+                        case 'heading':
+                            $level = in_array($f['level'] ?? '', ['h1','h2','h3','h4','h5','h6']) ? $f['level'] : 'h2';
+                            echo '<' . $level . '>' . esc_html($f['text'] ?? '') . '</' . $level . '>';
+                            break;
+                        case 'recaptcha_v2':
+                            // Output reCAPTCHA v2 widget and a hidden input for submission
+                            echo '<div class="scme-recaptcha-v2"></div>';
+                            echo '<input type="hidden" name="g-recaptcha-response" id="g-recaptcha-response-v2">';
+                            break;
+                        case 'recaptcha_v3':
+                            // Output reCAPTCHA v3 widget and a hidden input for submission
+                            echo '<div class="scme-recaptcha-v3"></div>';
+                            echo '<input type="hidden" name="g-recaptcha-response" id="g-recaptcha-response-v3">';
+                            break;
                         case 'textarea':
                             echo "<textarea id='$field_id' name='$name' placeholder='$placeholder' $required></textarea>";
                             break;
                         case 'select':
                             echo "<select id='$field_id' name='$name' $required>";
                             echo "<option value=''>-- Select --</option>";
-                            // Handle options for select, radio, checkbox
                             $options = [];
                             if (isset($f['options'])) {
                                 if (is_array($f['options'])) {
@@ -112,18 +129,6 @@ $step_count = count($steps);
                             } else {
                                 echo "<input type='checkbox' id='$field_id' name='$name' value='1' $required>";
                             }
-                            break;
-                        case 'heading':
-                            $level = in_array($f['level'] ?? '', ['h1','h2','h3','h4','h5','h6']) ? $f['level'] : 'h2';
-                            echo '<' . $level . '>' . esc_html($f['text'] ?? '') . '</' . $level . '>';
-                            break;
-                        case 'recaptcha_v2':
-                            // Output reCAPTCHA v2 widget
-                            echo '<div class="scme-recaptcha-v2"></div>';
-                            break;
-                        case 'recaptcha_v3':
-                            // Output reCAPTCHA v3 widget
-                            echo '<div class="scme-recaptcha-v3"></div>';
                             break;
                         default:
                             echo "<input type='$type' id='$field_id' name='$name' placeholder='$placeholder' $required" .
