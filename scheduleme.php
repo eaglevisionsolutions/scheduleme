@@ -94,12 +94,22 @@ add_action( 'rest_api_init', 'scme_register_rest_routes' );
 /**
  * Register the custom booking form shortcode.
  */
-function scme_booking_form_shortcode() {
+function scme_booking_form_shortcode($atts) {
+    $atts = shortcode_atts([
+        'id' => 0,
+    ], $atts, 'scme_booking_form');
+
+    $form_id = intval($atts['id']);
+    if (!$form_id) {
+        return '<div class="scme-error">No form ID provided.</div>';
+    }
+
     ob_start();
+    // Include your form template
     include SCME_PLUGIN_DIR . 'templates/booking-form.php';
     return ob_get_clean();
 }
-add_shortcode( 'your_custom_booking_form', 'scme_booking_form_shortcode' );
+add_shortcode('scme_booking_form', 'scme_booking_form_shortcode');
 
 /**
  * Initialize PayPal IPN/Webhook Listener
