@@ -88,6 +88,12 @@ class SCME_Admin_Settings {
         register_setting( 'SCME_settings_group', 'SCME_paypal_sandbox_mode' ); // Checkbox for sandbox
         register_setting( 'SCME_settings_group', 'SCME_paypal_ipn_url' ); // Auto-generated for IPN, user for webhook endpoint display
 
+        // Register reCAPTCHA Settings
+        register_setting( 'SCME_settings_group', 'scme_recaptcha_v2_site_key' );
+        register_setting( 'SCME_settings_group', 'scme_recaptcha_v2_secret' );
+        register_setting( 'SCME_settings_group', 'scme_recaptcha_v3_site_key' );
+        register_setting( 'SCME_settings_group', 'scme_recaptcha_v3_secret' );
+
         // Add settings sections
         add_settings_section(
             'SCME_google_section',
@@ -103,6 +109,13 @@ class SCME_Admin_Settings {
             'SCME-settings'
         );
 
+        add_settings_section(
+            'SCME_recaptcha_section',
+            __( 'reCAPTCHA Settings', 'your-custom-booking-plugin' ),
+            array( $this, 'recaptcha_section_callback' ),
+            'SCME-settings'
+        );
+
         // Add settings fields for Google Calendar
         add_settings_field( 'SCME_google_client_id', 'Client ID', array( $this, 'text_input_callback' ), 'SCME-settings', 'SCME_google_section', array( 'name' => 'SCME_google_client_id' ) );
         add_settings_field( 'SCME_google_client_secret', 'Client Secret', array( $this, 'text_input_callback' ), 'SCME-settings', 'SCME_google_section', array( 'name' => 'SCME_google_client_secret', 'type' => 'password' ) );
@@ -115,6 +128,12 @@ class SCME_Admin_Settings {
         add_settings_field( 'SCME_paypal_email', 'PayPal Business Email', array( $this, 'text_input_callback' ), 'SCME-settings', 'SCME_paypal_section', array( 'name' => 'SCME_paypal_email' ) );
         add_settings_field( 'SCME_paypal_sandbox_mode', 'Sandbox Mode', array( $this, 'checkbox_callback' ), 'SCME-settings', 'SCME_paypal_section', array( 'name' => 'SCME_paypal_sandbox_mode' ) );
         add_settings_field( 'SCME_paypal_ipn_url', 'PayPal IPN/Webhook URL', array( $this, 'ipn_url_callback' ), 'SCME-settings', 'SCME_paypal_section' );
+
+        // Add settings fields for reCAPTCHA
+        add_settings_field( 'scme_recaptcha_v2_site_key', 'reCAPTCHA v2 Site Key', array( $this, 'text_input_callback' ), 'SCME-settings', 'SCME_recaptcha_section', array( 'name' => 'scme_recaptcha_v2_site_key' ) );
+        add_settings_field( 'scme_recaptcha_v2_secret', 'reCAPTCHA v2 Secret', array( $this, 'text_input_callback' ), 'SCME-settings', 'SCME_recaptcha_section', array( 'name' => 'scme_recaptcha_v2_secret', 'type' => 'password' ) );
+        add_settings_field( 'scme_recaptcha_v3_site_key', 'reCAPTCHA v3 Site Key', array( $this, 'text_input_callback' ), 'SCME-settings', 'SCME_recaptcha_section', array( 'name' => 'scme_recaptcha_v3_site_key' ) );
+        add_settings_field( 'scme_recaptcha_v3_secret', 'reCAPTCHA v3 Secret', array( $this, 'text_input_callback' ), 'SCME-settings', 'SCME_recaptcha_section', array( 'name' => 'scme_recaptcha_v3_secret', 'type' => 'password' ) );
     }
 
     public function google_section_callback() {
@@ -123,6 +142,10 @@ class SCME_Admin_Settings {
 
     public function paypal_section_callback() {
         echo '<p>Configure your PayPal Business account details for processing payments.</p>';
+    }
+
+    public function recaptcha_section_callback() {
+        echo '<p>Enter your reCAPTCHA keys for v2 and v3. These are used to protect your forms from spam and abuse.</p>';
     }
 
     // Generic text input callback

@@ -3,7 +3,7 @@
  * Plugin Name: Schedule Me Booking Plugin
  * Plugin URI:  https://eaglevisionsolutions.ca/schedule-me-booking-plugin
  * Description: A custom multi-step booking form with Google Calendar and PayPal integration.
- * Version:     1.0.7
+ * Version:     1.0.8
  * Author:      Eagle Vision Solutions
  * Author URI:  https://eaglevisionsolutions.ca/
  * Text Domain: schedule-me-booking
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 // Define plugin constants
 define( 'SCME_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SCME_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
-define( 'SCME_VERSION', '1.0.0' );
+define( 'SCME_VERSION', '1.0.8' );
 
 // Include necessary classes and files
 require_once SCME_PLUGIN_DIR . 'includes/class-booking-manager.php';
@@ -94,12 +94,20 @@ add_action( 'rest_api_init', 'scme_register_rest_routes' );
 /**
  * Register the custom booking form shortcode.
  */
-function scme_booking_form_shortcode() {
+function scme_booking_form_shortcode($atts) {
+    $atts = shortcode_atts([
+        'id' => 0,
+    ], $atts, 'scme_booking_form');
+
+    $form_id = intval($atts['id']);
+    if (!$form_id) {
+        return '<div class="scme-error">No form ID provided.</div>';
+    }
     ob_start();
     include SCME_PLUGIN_DIR . 'templates/booking-form.php';
     return ob_get_clean();
 }
-add_shortcode( 'your_custom_booking_form', 'scme_booking_form_shortcode' );
+add_shortcode('scme_booking_form', 'scme_booking_form_shortcode');
 
 /**
  * Initialize PayPal IPN/Webhook Listener
@@ -112,3 +120,74 @@ function scme_init_paypal_listener() {
     add_action( 'template_redirect', array( $paypal_ipn_handler, 'handle_request' ) );
 }
 add_action( 'plugins_loaded', 'scme_init_paypal_listener' ); // Ensure plugin classes are loaded
+
+
+function scme_admin_enqueue_form_builder_script($hook) {
+    global $post;
+    // Only load on the booking form CPT edit/add screen
+    $is_booking_form = false;
+    if (
+        ($hook === 'post.php' || $hook === 'post-new.php') &&
+        isset($_GET['post_type']) && $_GET['post_type'] === 'scme_booking_form'
+    ) {
+        $is_booking_form = true;
+    }
+    // Also handle the case when editing an existing post (post_type is not in URL)
+    if (
+        ($hook === 'post.php' || $hook === 'post-new.php') &&
+        isset($post) && isset($post->post_type) && $post->post_type === 'scme_booking_form'
+    ) {
+        $is_booking_form = true;
+    }
+    if ($is_booking_form) {
+        wp_enqueue_script('jquery-ui-draggable');
+        wp_enqueue_script('jquery-ui-sortable');
+        wp_enqueue_script('scme-form-builder-admin', SCME_PLUGIN_URL . 'admin/form-builder-admin.js', array('jquery', 'jquery-ui-draggable', 'jquery-ui-sortable'), SCME_VERSION, true);
+        wp_enqueue_style('SCME-style', SCME_PLUGIN_URL . 'public/css/style.css', array(), SCME_VERSION);
+
+        // --- FIX: Pass fields as an array to JS ---
+        $fields = [];
+        if (isset($post) && $post->post_type === 'scme_booking_form') {
+            $fields = get_post_meta($post->ID, '_scme_form_fields', true);
+            // If fields are stored as JSON string, decode them
+            if (is_string($fields)) {
+                $fields = json_decode($fields, true);
+            }
+            if (!is_array($fields)) {
+                $fields = [];
+            }
+        }
+        $inline_js = 'if (typeof window.SCMEFormBuilderInit === "function") { window.SCMEFormBuilderInit(' . json_encode($fields) . '); }';
+        wp_add_inline_script('scme-form-builder-admin', $inline_js);
+    }
+}
+add_action('admin_enqueue_scripts', 'scme_admin_enqueue_form_builder_script');
+
+
+function scme_get_recaptcha_keys($version = 'v2') {
+    if (defined('ELEMENTOR_VERSION')) {
+        if ($version === 'v2') {
+            return [
+                'site_key' => get_option('elementor_pro_recaptcha_v2_site_key', ''),
+                'secret'   => get_option('elementor_pro_recaptcha_v2_secret_key', ''),
+            ];
+        } else {
+            return [
+                'site_key' => get_option('elementor_pro_recaptcha_v3_site_key', ''),
+                'secret'   => get_option('elementor_pro_recaptcha_v3_secret_key', ''),
+            ];
+        }
+    } else {
+        if ($version === 'v2') {
+            return [
+                'site_key' => get_option('scme_recaptcha_v2_site_key', ''),
+                'secret'   => get_option('scme_recaptcha_v2_secret', ''),
+            ];
+        } else {
+            return [
+                'site_key' => get_option('scme_recaptcha_v3_site_key', ''),
+                'secret'   => get_option('scme_recaptcha_v3_secret', ''),
+            ];
+        }
+    }
+}
