@@ -58,7 +58,6 @@ $step_count = count($steps);
                                 }
                             }
                             foreach ($options as $opt) {
-                                // If $opt is an array with label/value (from new builder), use those
                                 if (is_array($opt) && isset($opt['label'], $opt['value'])) {
                                     $label = $opt['label'];
                                     $value = $opt['value'];
