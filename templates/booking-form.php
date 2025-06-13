@@ -1,5 +1,32 @@
 <?php
 global $post;
+function scme_get_recaptcha_keys($version = 'v2') {
+    if (defined('ELEMENTOR_VERSION')) {
+        if ($version === 'v2') {
+            return [
+                'site_key' => get_option('elementor_pro_recaptcha_v2_site_key', ''),
+                'secret'   => get_option('elementor_pro_recaptcha_v2_secret_key', ''),
+            ];
+        } else {
+            return [
+                'site_key' => get_option('elementor_pro_recaptcha_v3_site_key', ''),
+                'secret'   => get_option('elementor_pro_recaptcha_v3_secret_key', ''),
+            ];
+        }
+    } else {
+        if ($version === 'v2') {
+            return [
+                'site_key' => get_option('scme_recaptcha_v2_site_key', ''),
+                'secret'   => get_option('scme_recaptcha_v2_secret', ''),
+            ];
+        } else {
+            return [
+                'site_key' => get_option('scme_recaptcha_v3_site_key', ''),
+                'secret'   => get_option('scme_recaptcha_v3_secret', ''),
+            ];
+        }
+    }
+}
 $form_id = isset($post) && $post->post_type === 'scme_booking_form' ? $post->ID : (isset($_GET['form_id']) ? intval($_GET['form_id']) : 0);
 if (!$form_id) {
     echo '<p>No form found.</p>';
@@ -80,6 +107,16 @@ $step_count = count($steps);
                             $level = in_array($f['level'], ['h1','h2','h3','h4','h5','h6']) ? $f['level'] : 'h2';
                             echo '<' . $level . '>' . esc_html($f['text']) . '</' . $level . '>';
                             break;
+                        case 'recaptcha_v2':
+                            // Output reCAPTCHA v2 widget using $keys['site_key']
+                            $keys = scme_get_recaptcha_keys('v2');
+                            echo '<div class="scme-recaptcha-v2" data-sitekey="' . esc_attr($keys['site_key']) . '"></div>';
+                            break;
+                        case 'recaptcha_v3':
+                            // Output reCAPTCHA v3 widget using $keys['site_key']
+                            $keys = scme_get_recaptcha_keys('v3');
+                            echo '<div class="scme-recaptcha-v3" data-sitekey="' . esc_attr($keys['site_key']) . '"></div>';
+                            break;
                         default:
                             echo "<input type='$type' id='$field_id' name='$name' placeholder='$placeholder' $required" .
                                 ($regex ? " pattern='$regex'" : "") . ">";
@@ -136,3 +173,4 @@ jQuery(function($){
     });
 });
 </script>
+

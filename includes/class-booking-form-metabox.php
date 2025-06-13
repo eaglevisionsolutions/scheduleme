@@ -52,6 +52,8 @@ class SCME_Booking_Form_Metabox {
             <div class="scme-widget" data-type="paragraph">Paragraph</div>
             <div class="scme-widget" data-type="custom_html">Custom HTML</div>
             <div class="scme-widget" data-type="button">Button</div>
+            <div class="scme-widget" data-type="recaptcha_v2">reCAPTCHA v2</div>
+            <div class="scme-widget" data-type="recaptcha_v3">reCAPTCHA v3</div>
         </div>
         <div id="scme-form-builder-dropzone" class="scme-form-builder-dropzone"></div>
         <input type="hidden" id="scme_form_fields_input" name="scme_form_fields" value='<?php echo esc_attr(json_encode($fields)); ?>' />

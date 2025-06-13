@@ -154,3 +154,32 @@ function scme_admin_enqueue_form_builder_script($hook) {
     }
 }
 add_action('admin_enqueue_scripts', 'scme_admin_enqueue_form_builder_script');
+
+
+function scme_get_recaptcha_keys($version = 'v2') {
+    if (defined('ELEMENTOR_VERSION')) {
+        if ($version === 'v2') {
+            return [
+                'site_key' => get_option('elementor_pro_recaptcha_v2_site_key', ''),
+                'secret'   => get_option('elementor_pro_recaptcha_v2_secret_key', ''),
+            ];
+        } else {
+            return [
+                'site_key' => get_option('elementor_pro_recaptcha_v3_site_key', ''),
+                'secret'   => get_option('elementor_pro_recaptcha_v3_secret_key', ''),
+            ];
+        }
+    } else {
+        if ($version === 'v2') {
+            return [
+                'site_key' => get_option('scme_recaptcha_v2_site_key', ''),
+                'secret'   => get_option('scme_recaptcha_v2_secret', ''),
+            ];
+        } else {
+            return [
+                'site_key' => get_option('scme_recaptcha_v3_site_key', ''),
+                'secret'   => get_option('scme_recaptcha_v3_secret', ''),
+            ];
+        }
+    }
+}

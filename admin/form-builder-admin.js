@@ -48,6 +48,14 @@ window.SCMEFormBuilderInit = function(initialFields) {
                         </form>
                     </div>`;
                     $dropzone.append(html);
+                } else if(field.type === 'recaptcha_v2' || field.type === 'recaptcha_v3') {
+                    let html = `<div class="scme-form-builder-item scme-form-builder-recaptcha" data-idx="${idx}">
+                        <strong>${field.label}</strong>
+                        <span style="color:#888;">[${field.type === 'recaptcha_v2' ? 'reCAPTCHA v2' : 'reCAPTCHA v3'}]</span>
+                        <button type="button" class="scme-remove-field button button-small" style="float:right;">Remove</button>
+                    </div>`;
+                    $dropzone.append(html);
+                    return;
                 } else {
                     // Render normal field
                     let label = field.label || field.type.charAt(0).toUpperCase() + field.type.slice(1);
