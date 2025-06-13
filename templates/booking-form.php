@@ -36,7 +36,7 @@ $step_count = count($steps);
                     }
 
                     $type = $f['type'];
-                    $name = esc_attr($f['name']);
+                    $name = esc_attr($f['name'] ?? '');
                     $placeholder = esc_attr($f['placeholder'] ?? '');
                     $required = !empty($f['required']) ? 'required' : '';
                     $regex = !empty($f['regex']) ? esc_attr($f['regex']) : '';
@@ -69,26 +69,50 @@ $step_count = count($steps);
                             echo "</select>";
                             break;
                         case 'radio':
-                            $opts = explode(',', $f['options'] ?? '');
-                            foreach ($opts as $opt) {
-                                $opt = trim($opt);
-                                echo "<label><input type='radio' name='$name' value='" . esc_attr($opt) . "' $required> $opt</label> ";
+                            $options = [];
+                            if (isset($f['options'])) {
+                                if (is_array($f['options'])) {
+                                    $options = $f['options'];
+                                } elseif (is_string($f['options'])) {
+                                    $options = array_map('trim', explode(',', $f['options']));
+                                }
+                            }
+                            foreach ($options as $opt) {
+                                if (is_array($opt) && isset($opt['label'], $opt['value'])) {
+                                    $label = $opt['label'];
+                                    $value = $opt['value'];
+                                } else {
+                                    $label = $value = $opt;
+                                }
+                                echo "<label><input type='radio' name='$name' value='" . esc_attr($value) . "' $required> $label</label> ";
                             }
                             break;
                         case 'checkbox':
-                            $opts = explode(',', $f['options'] ?? '');
-                            if (count($opts) > 1) {
-                                foreach ($opts as $opt) {
-                                    $opt = trim($opt);
-                                    echo "<label><input type='checkbox' name='{$name}[]' value='" . esc_attr($opt) . "'> $opt</label> ";
+                            $options = [];
+                            if (isset($f['options'])) {
+                                if (is_array($f['options'])) {
+                                    $options = $f['options'];
+                                } elseif (is_string($f['options'])) {
+                                    $options = array_map('trim', explode(',', $f['options']));
+                                }
+                            }
+                            if (count($options) > 1) {
+                                foreach ($options as $opt) {
+                                    if (is_array($opt) && isset($opt['label'], $opt['value'])) {
+                                        $label = $opt['label'];
+                                        $value = $opt['value'];
+                                    } else {
+                                        $label = $value = $opt;
+                                    }
+                                    echo "<label><input type='checkbox' name='{$name}[]' value='" . esc_attr($value) . "'> $label</label> ";
                                 }
                             } else {
                                 echo "<input type='checkbox' id='$field_id' name='$name' value='1' $required>";
                             }
                             break;
                         case 'heading':
-                            $level = in_array($f['level'], ['h1','h2','h3','h4','h5','h6']) ? $f['level'] : 'h2';
-                            echo '<' . $level . '>' . esc_html($f['text']) . '</' . $level . '>';
+                            $level = in_array($f['level'] ?? '', ['h1','h2','h3','h4','h5','h6']) ? $f['level'] : 'h2';
+                            echo '<' . $level . '>' . esc_html($f['text'] ?? '') . '</' . $level . '>';
                             break;
                         case 'recaptcha_v2':
                             // Output reCAPTCHA v2 widget
