@@ -1,7 +1,5 @@
 <?php
-global $post;
-$form_id = isset($post) && $post->post_type === 'scme_booking_form' ? $post->ID : (isset($_GET['form_id']) ? intval($_GET['form_id']) : 0);
-if (!$form_id) {
+if (empty($form_id)) {
     echo '<p>No form found.</p>';
     return;
 }
@@ -81,14 +79,12 @@ $step_count = count($steps);
                             echo '<' . $level . '>' . esc_html($f['text']) . '</' . $level . '>';
                             break;
                         case 'recaptcha_v2':
-                            // Output reCAPTCHA v2 widget using $keys['site_key']
-                            $keys = scme_get_recaptcha_keys('v2');
-                            echo '<div class="scme-recaptcha-v2" data-sitekey="' . esc_attr($keys['site_key']) . '"></div>';
+                            // Output reCAPTCHA v2 widget
+                            echo '<div class="scme-recaptcha-v2"></div>';
                             break;
                         case 'recaptcha_v3':
-                            // Output reCAPTCHA v3 widget using $keys['site_key']
-                            $keys = scme_get_recaptcha_keys('v3');
-                            echo '<div class="scme-recaptcha-v3" data-sitekey="' . esc_attr($keys['site_key']) . '"></div>';
+                            // Output reCAPTCHA v3 widget
+                            echo '<div class="scme-recaptcha-v3"></div>';
                             break;
                         default:
                             echo "<input type='$type' id='$field_id' name='$name' placeholder='$placeholder' $required" .
@@ -146,4 +142,7 @@ jQuery(function($){
     });
 });
 </script>
+<?php
+$keys = scme_get_recaptcha_keys('v2'); // or 'v3'
+?>
 

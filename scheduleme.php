@@ -103,9 +103,7 @@ function scme_booking_form_shortcode($atts) {
     if (!$form_id) {
         return '<div class="scme-error">No form ID provided.</div>';
     }
-
     ob_start();
-    // Include your form template
     include SCME_PLUGIN_DIR . 'templates/booking-form.php';
     return ob_get_clean();
 }
