@@ -38,7 +38,7 @@ Follow these steps to set up and configure the Custom Booking System on your Wor
 1.  **Clone or Download:** Clone this repository or download the ZIP file.
 2.  **Upload to WordPress:**
     * If you downloaded the ZIP, extract it.
-    * Upload the `your-custom-booking-plugin` folder to your WordPress installation's `wp-content/plugins/` directory.
+    * Upload the `scheduleme` folder to your WordPress installation's `wp-content/plugins/` directory.
 3.  **Activate Plugin:** Go to your WordPress admin dashboard, navigate to **Plugins**, find "Your Custom Booking System," and click **Activate**.
 
 ### 2. Composer Dependencies
