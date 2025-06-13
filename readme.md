@@ -46,7 +46,7 @@ Follow these steps to set up and configure the Custom Booking System on your Wor
 This plugin uses the Google API Client Library for PHP, which is managed via Composer.
 
 1.  **Access Terminal:** Open your terminal or command prompt.
-2.  **Navigate to Plugin Directory:** Change directory to `wp-content/plugins/your-custom-booking-plugin/`.
+2.  **Navigate to Plugin Directory:** Change directory to `wp-content/plugins/scheduleme/`.
 3.  **Install Dependencies:** Run the following Composer command:
     ```bash
     composer install
@@ -65,7 +65,7 @@ This plugin uses the Google API Client Library for PHP, which is managed via Com
     * Click **+ CREATE CREDENTIALS** and select **OAuth client ID**.
     * Choose "Web application" as the Application type.
     * Enter a name (e.g., "Your Booking System Web App").
-    * **Crucially, set the "Authorized redirect URIs" to:** `https://yourwebsite.com/wp-admin/admin.php?page=ycbs-settings` (Replace `yourwebsite.com` with your actual domain). This exact URI is displayed in your plugin settings page after installation.
+    * **Crucially, set the "Authorized redirect URIs" to:** `https://yourwebsite.com/wp-admin/admin.php?page=scme-settings` (Replace `yourwebsite.com` with your actual domain). This exact URI is displayed in your plugin settings page after installation.
     * Click **Create**. You will be presented with your **Client ID** and **Client Secret**. Keep these secure.
 
 ### 4. PayPal Business Account Setup
@@ -75,14 +75,14 @@ This plugin uses the Google API Client Library for PHP, which is managed via Com
     * Go to **Account Settings > Website payments > Instant Payment Notifications**.
     * Click **Update**.
     * Click **Choose IPN Settings**.
-    * Set the **Notification URL** to: `https://yourwebsite.com/your-custom-booking-paypal-listener/` (Replace `yourwebsite.com` with your actual domain). This URL is displayed in your plugin settings.
+    * Set the **Notification URL** to: `https://yourwebsite.com/scheduleme-paypal-listener/` (Replace `yourwebsite.com` with your actual domain). This URL is displayed in your plugin settings.
     * Select **Receive IPN messages (Enabled)**.
     * Click **Save**.
     * **Important:** After activating the plugin, you might need to go to your WordPress admin, navigate to **Settings > Permalinks**, and simply click **Save Changes** without making any modifications. This will flush your rewrite rules and ensure the PayPal listener URL is correctly recognized.
 
 ### 5. Plugin Configuration in WordPress
 
-1.  **Navigate to Settings:** In your WordPress admin dashboard, go to **Custom Booking > Custom Booking Settings**.
+1.  **Navigate to Settings:** In your WordPress admin dashboard, go to **Schedule Me > Settings**.
 2.  **Google Calendar API Settings:**
     * Enter the **Client ID** obtained from Google Cloud.
     * Enter the **Client Secret** obtained from Google Cloud.
@@ -107,7 +107,7 @@ This plugin uses the Google API Client Library for PHP, which is managed via Com
 2.  Drag and drop a **Shortcode** widget onto your page.
 3.  In the shortcode field, enter:
     ```
-    [your_custom_booking_form]
+    [scme_booking_form id="{post id of form here}"]
     ```
 4.  Update your Elementor page.
 
