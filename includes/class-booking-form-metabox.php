@@ -17,6 +17,14 @@ class SCME_Booking_Form_Metabox {
             'side',
             'default'
         );
+        add_meta_box(
+            'scme_booking_form_shortcode',
+            'Form Shortcode',
+            [self::class, 'scme_booking_form_shortcode_metabox'],
+            'scme_booking_form',
+            'side',
+            'default'
+        );
     }
 
     public static function render($post) {
@@ -82,6 +90,16 @@ class SCME_Booking_Form_Metabox {
         if (isset($_POST['scme_form_style'])) {
             update_post_meta($post_id, '_scme_form_style', wp_unslash($_POST['scme_form_style']));
         }
+    }
+    public static scme_booking_form_shortcode_metabox( $post ) {
+        $form_id = $post->ID;
+    ?>
+    <div style="margin:8px 0;">
+        <strong>Shortcode:</strong>
+        <input type="text" readonly value="[scme_booking_form id=&quot;<?php echo esc_attr($form_id); ?>&quot;]" style="width:100%;font-family:monospace;" onclick="this.select();" />
+        <small style="color:#888;">Copy and paste this shortcode into any page or post.</small>
+    </div>
+    <?php
     }
 }
 add_action('add_meta_boxes', ['SCME_Booking_Form_Metabox', 'add']);
