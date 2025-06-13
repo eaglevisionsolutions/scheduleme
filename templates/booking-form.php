@@ -30,8 +30,11 @@ $step_count = count($steps);
             <?php foreach ($fields as $f): ?>
                 <div class="scme-form-field">
                     <?php
-                    // Show label if not explicitly set to false
-                    if (($f['show_label'] ?? true) && !empty($f['label'])) {
+                    // Only show label for input fields (not step, heading, recaptcha)
+                    if (
+                        !in_array($f['type'], ['step', 'heading', 'recaptcha_v2', 'recaptcha_v3'])
+                        && (($f['show_label'] ?? true) && !empty($f['label']))
+                    ) {
                         echo '<label for="' . esc_attr($f['name'] ?? '') . '">' . esc_html($f['label']) . '</label>';
                     }
 
