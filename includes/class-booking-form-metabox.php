@@ -91,7 +91,8 @@ class SCME_Booking_Form_Metabox {
             update_post_meta($post_id, '_scme_form_style', wp_unslash($_POST['scme_form_style']));
         }
     }
-    public static scme_booking_form_shortcode_metabox( $post ) {
+
+    public static function scme_booking_form_shortcode_metabox($post) {
         $form_id = $post->ID;
     ?>
     <div style="margin:8px 0;">
