@@ -173,7 +173,7 @@ class SCME_Admin_Settings {
             echo '<p style="color: green;">&#10004; Authenticated with Google Calendar. (Token stored securely)</p>';
         } else {
             $client_id = get_option('SCME_google_client_id');
-            $redirect_uri = admin_url('admin.php?page=SCME-settings');
+            $redirect_uri = admin_url('admin.php?page=schedule-me');
             if ($client_id) {
                 $auth_url = 'https://accounts.google.com/o/oauth2/auth?' . http_build_query([
                     'client_id' => $client_id,
@@ -231,41 +231,55 @@ class SCME_Admin_Settings {
 
     // Manual Availability Table Callback
     public function availability_callback() {
+        $days = [
+            'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'
+        ];
+        $labels = [
+            'sunday'    => 'Sunday',
+            'monday'    => 'Monday',
+            'tuesday'   => 'Tuesday',
+            'wednesday' => 'Wednesday',
+            'thursday'  => 'Thursday',
+            'friday'    => 'Friday',
+            'saturday'  => 'Saturday'
+        ];
         $availability = get_option('scme_manual_availability', []);
         ?>
-        <table id="scme-availability-table">
+        <table class="form-table">
             <tr>
-                <th>Date (YYYY-MM-DD)</th>
-                <th>Time Windows (comma separated, e.g. 8:00-10:00,10:00-12:00)</th>
-                <th></th>
+                <th>Day</th>
+                <th>Time Windows (comma separated, e.g. 8:00-10:00,14:00-16:00)</th>
+                <th>Not Available</th>
             </tr>
-            <?php
-            if (!empty($availability) && is_array($availability)) {
-                foreach ($availability as $row) {
-                    echo '<tr>
-                        <td><input type="text" name="scme_manual_availability[][date]" value="' . esc_attr($row['date']) . '" /></td>
-                        <td><input type="text" name="scme_manual_availability[][windows]" value="' . esc_attr($row['windows']) . '" /></td>
-                        <td><button type="button" class="button scme-remove-row">Remove</button></td>
-                    </tr>';
-                }
-            }
+            <?php foreach ($days as $day): 
+                $windows = isset($availability[$day]) && is_array($availability[$day]) ? implode(',', array_diff($availability[$day], ['not_available'])) : '';
+                $not_available = isset($availability[$day]) && in_array('not_available', (array)$availability[$day]);
             ?>
+            <tr>
+                <td><?php echo esc_html($labels[$day]); ?></td>
+                <td>
+                    <input type="text" name="scme_manual_availability[<?php echo esc_attr($day); ?>][]" value="<?php echo esc_attr($windows); ?>" <?php if($not_available) echo 'disabled'; ?> />
+                </td>
+                <td>
+                    <input type="checkbox" class="scme-not-available" data-day="<?php echo esc_attr($day); ?>" name="scme_manual_availability[<?php echo esc_attr($day); ?>][]" value="not_available" <?php checked($not_available); ?> />
+                </td>
+            </tr>
+            <?php endforeach; ?>
         </table>
-        <button type="button" class="button" id="scme-add-row">Add Date</button>
         <script>
         jQuery(document).ready(function($){
-            $('#scme-add-row').on('click', function(){
-                $('#scme-availability-table').append('<tr>\
-                    <td><input type="text" name="scme_manual_availability[][date]" /></td>\
-                    <td><input type="text" name="scme_manual_availability[][windows]" /></td>\
-                    <td><button type="button" class="button scme-remove-row">Remove</button></td>\
-                </tr>');
-            });
-            $(document).on('click', '.scme-remove-row', function(){
-                $(this).closest('tr').remove();
+            $('.scme-not-available').on('change', function(){
+                var $row = $(this).closest('tr');
+                var $input = $row.find('input[type="text"]');
+                if ($(this).is(':checked')) {
+                    $input.prop('disabled', true);
+                } else {
+                    $input.prop('disabled', false);
+                }
             });
         });
         </script>
+        <p class="description">Leave time windows blank and check "Not Available" for days you do not accept bookings.</p>
         <?php
     }
 
