@@ -91,8 +91,8 @@ window.SCMEFormBuilderInit = function(initialFields) {
                             ${field.type === 'date' ? `
                                 <label>Display as:
                                   <select name="display_as">
-                                    <option value="date">Date Input</option>
-                                    <option value="calendar">Booking Calendar</option>
+                                    <option value="date"${field.display_as === 'date' ? ' selected' : ''}>Date Input</option>
+                                    <option value="calendar"${field.display_as === 'calendar' ? ' selected' : ''}>Booking Calendar</option>
                                   </select>
                                 </label><br>
                                 <label>Time Selection:
@@ -249,14 +249,8 @@ window.SCMEFormBuilderInit = function(initialFields) {
             }
             // Additional fields for date type
             if(f.type === 'date') {
-                let timeWindows = [];
-                $form.find('.scme-time-window-input').each(function() {
-                    let val = $(this).val().trim();
-                    if (val) timeWindows.push(val);
-                });
-                f.time_windows = timeWindows.join(',');
                 f.display_as = $form.find('select[name="display_as"]').val();
-                f.time_mode = $form.find('select[name="time_mode"]').val();
+                // ...collect other fields as needed...
             }
             fields[idx] = f;
             renderFields();
