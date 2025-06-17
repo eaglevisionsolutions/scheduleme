@@ -55,9 +55,11 @@ register_deactivation_hook( __FILE__, 'scme_deactivate_plugin' );
 function scme_enqueue_scripts() {
     // Enqueue your custom CSS
     wp_enqueue_style( 'SCME-style', SCME_PLUGIN_URL . 'public/css/style.css', array(), SCME_VERSION );
+    wp_enqueue_style('jquery-ui-css', 'https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css');
 
     // Enqueue your custom JavaScript
     wp_enqueue_script( 'SCME-script', SCME_PLUGIN_URL . 'public/js/script.js', array( 'jquery' ), SCME_VERSION, true );
+    wp_enqueue_script('jquery-ui-datepicker');
 
     // Pass data to JavaScript (e.g., AJAX URL, nonces)
     wp_localize_script( 'SCME-script', 'SCME_ajax_obj', array(
@@ -191,3 +193,6 @@ function scme_get_recaptcha_keys($version = 'v2') {
         }
     }
 }
+
+wp_enqueue_script('jquery-ui-datepicker');
+wp_enqueue_style('jquery-ui-css', 'https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css');
