@@ -290,15 +290,29 @@ class SCME_Form_Handler {
     }
 
     // Example: Fetch available dates from manual settings
-    public static function get_dates_from_manual_availability($time_windows) {
+    public static function get_dates_from_manual_availability($time_windows = '') {
         $availability = get_option('scme_manual_availability', []);
         $dates = [];
-        foreach ($availability as $row) {
-            if (!empty($row['date']) && !empty($row['windows'])) {
-                // Optionally, filter by $time_windows if needed
-                $dates[] = $row['date'];
+        $start = new DateTime();
+        $end = (clone $start)->modify('+30 days');
+        $interval = new DateInterval('P1D');
+        $period = new DatePeriod($start, $interval, $end);
+
+        foreach ($period as $date) {
+            $day_of_week = strtolower($date->format('l')); // e.g., 'monday'
+            if (isset($availability[$day_of_week]) && is_array($availability[$day_of_week])) {
+                if (in_array('not_available', $availability[$day_of_week])) {
+                    continue; // skip this day
+                }
+                // If there are time windows, mark as available
+                $windows = array_filter($availability[$day_of_week], function($w) {
+                    return $w !== 'not_available' && trim($w) !== '';
+                });
+                if (!empty($windows)) {
+                    $dates[] = $date->format('Y-m-d');
+                }
             }
         }
-        return array_unique($dates);
+        return $dates;
     }
 }

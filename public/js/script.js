@@ -345,7 +345,6 @@ jQuery(document).ready(function($) {
         const timeMode = $calendar.data('time-mode');
         const timeWindows = $calendar.data('time-windows');
 
-        // Fetch available dates from the server
         $.ajax({
             url: '/wp-json/your-plugin/v1/get-available-dates',
             method: 'GET',
@@ -359,7 +358,7 @@ jQuery(document).ready(function($) {
                 $calendar.datepicker({
                     minDate: 0,
                     dateFormat: 'yy-mm-dd',
-                    inline: true, // <-- This makes the calendar always visible
+                    inline: true,
                     beforeShowDay: function(date) {
                         const ymd = $.datepicker.formatDate('yy-mm-dd', date);
                         if (availableDates.includes(ymd)) {
