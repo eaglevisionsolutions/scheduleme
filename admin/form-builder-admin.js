@@ -250,7 +250,7 @@ window.SCMEFormBuilderInit = function(initialFields) {
             // Additional fields for date type
             if(f.type === 'date') {
                 let timeWindows = [];
-                $('#scme-time-windows-list .scme-time-window-input').each(function() {
+                $form.find('.scme-time-window-input').each(function() {
                     let val = $(this).val().trim();
                     if (val) timeWindows.push(val);
                 });
@@ -326,19 +326,37 @@ window.SCMEFormBuilderInit = function(initialFields) {
             $step.find('.scme-edit-step-form').slideDown(150);
         }
 
-        // Add window button (should be outside the dynamic list)
-        $('#scme-form-builder').on('click', '#scme-add-time-window', function() {
-            $('#scme-time-windows-list').append(`
-                <div class="scme-time-window-row">
-                    <input type="text" class="scme-time-window-input" placeholder="e.g. 10:00-12:00" />
-                    <button type="button" class="scme-remove-time-window">Remove</button>
-                </div>
-            `);
-        });
+        // Ensure this runs after your DOM is ready
+        $(function() {
+            // Add Window (delegated)
+            $(document).on('click', '#scme-add-time-window', function() {
+                $('#scme-time-windows-list').append(`
+                    <div class="scme-time-window-row">
+                        <input type="text" class="scme-time-window-input" placeholder="e.g. 10:00-12:00" />
+                        <button type="button" class="scme-remove-time-window">Remove</button>
+                    </div>
+                `);
+            });
 
-        // Remove window button (event delegation)
-        $('#scme-form-builder').on('click', '.scme-remove-time-window', function() {
-            $(this).closest('.scme-time-window-row').remove();
+            // Remove Window (delegated)
+            $(document).on('click', '.scme-remove-time-window', function() {
+                $(this).closest('.scme-time-window-row').remove();
+            });
+
+            // When saving the field (adjust selector to your actual save button/form)
+            $(document).on('submit', '.scme-edit-field-form', function(e) {
+                // ...existing code to get the field object...
+                let timeWindows = [];
+                $('#scme-time-windows-list .scme-time-window-input').each(function() {
+                    let val = $(this).val().trim();
+                    if (val) timeWindows.push(val);
+                });
+                // Save to hidden input or directly to your field object
+                $('#scme-time-windows-hidden').val(timeWindows.join(','));
+                // If you use a JS field object:
+                // field.time_windows = timeWindows.join(',');
+                // ...existing code...
+            });
         });
     });
 };

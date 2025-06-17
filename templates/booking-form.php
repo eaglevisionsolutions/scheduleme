@@ -135,10 +135,16 @@ $step_count = count($steps);
                             $time_mode = $f['time_mode'] ?? 'exact';
                             $time_windows = $f['time_windows'] ?? '';
                             if ($display_as === 'calendar') {
-                                echo "<div id='scme-calendar-{$name}' class='scme-calendar-picker' data-name='{$name}' data-time-mode='{$time_mode}' data-time-windows='" . esc_attr($time_windows) . "'></div>";
-                                echo "<div class='scme-time-slots' id='scme-time-slots-{$name}'></div>";
-                                echo "<input type='hidden' name='{$name}' id='scme-date-hidden-{$name}' />";
+                                ?>
+                                <div id="scme-calendar-<?php echo esc_attr($name); ?>" class="scme-calendar-picker" 
+                                     data-name="<?php echo esc_attr($name); ?>" 
+                                     data-time-mode="<?php echo esc_attr($time_mode); ?>" 
+                                     data-time-windows="<?php echo esc_attr($time_windows); ?>"></div>
+                                <input type="hidden" name="<?php echo esc_attr($name); ?>" id="scme-date-hidden-<?php echo esc_attr($name); ?>" />
+                                <div class="scme-time-slots" id="scme-time-slots-<?php echo esc_attr($name); ?>"></div>
+                                <?php
                             } else {
+                                // fallback to regular date input
                                 echo "<input type='date' id='$field_id' name='$name' $required>";
                             }
                             break;

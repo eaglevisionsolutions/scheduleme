@@ -249,3 +249,19 @@
 .scme-edit-field-form input[type="checkbox"] {
     margin-left: 6px;
 }
+.scme-calendar-picker {
+    margin-bottom: 1em;
+}
+.scme-time-window, .scme-time-slot {
+    display: inline-block;
+    padding: 0.5em 1em;
+    margin: 0.25em;
+    border: 1px solid #0073aa;
+    border-radius: 4px;
+    cursor: pointer;
+    background: #f7f7f7;
+}
+.scme-time-window.selected, .scme-time-slot.selected {
+    background: #0073aa;
+    color: #fff;
+}

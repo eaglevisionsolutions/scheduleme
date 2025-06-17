@@ -354,7 +354,6 @@ jQuery(document).ready(function($) {
                 time_windows: timeWindows
             },
             success: function(response) {
-                // Assume response.available_dates is an array of 'YYYY-MM-DD'
                 const availableDates = response.available_dates || [];
 
                 $calendar.datepicker({
@@ -368,7 +367,6 @@ jQuery(document).ready(function($) {
                         return [false, "", "Unavailable"];
                     },
                     onSelect: function(dateText) {
-                        // Set hidden input value
                         $('#scme-date-hidden-' + fieldName).val(dateText);
 
                         // Fetch and show time windows for this date
@@ -402,4 +400,10 @@ jQuery(document).ready(function($) {
         });
     });
 
+    // Optional: handle time window selection
+    $(document).on('click', '.scme-time-window', function() {
+        $('.scme-time-window').removeClass('selected');
+        $(this).addClass('selected');
+        // You may want to store the selected window in a hidden input for form submission
+    });
 });
