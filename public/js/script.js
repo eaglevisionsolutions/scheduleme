@@ -237,51 +237,43 @@ jQuery(document).ready(function($) {
 
     // Fetch available slots when date or service changes
     function fetchAvailableSlots() {
-        const selectedDate = $datePicker.val();
-        const serviceDuration = $serviceSelect.find('option:selected').data('duration'); // in minutes
+        const $calendarPicker = $('.scme-calendar-picker');
+        if ($calendarPicker.length === 0) return;
 
-        if (!selectedDate || !serviceDuration) {
-            $timeSlotsContainer.html('<p>Please select a date and a service to see available times.</p>');
-            $timeSelectNextButton.prop('disabled', true);
-            $selectedStartTime.val('');
-            $selectedEndTime.val('');
-            return;
+        const selectedDate = $calendarPicker.val();
+        const timeMode = $calendarPicker.data('time-mode');
+        const timeWindows = $calendarPicker.data('time-windows');
+
+        if (!selectedDate) return;
+
+        // Prepare data for AJAX
+        let data = {
+            selected_date: selectedDate,
+            // Add other params as needed (e.g., service_duration)
+        };
+
+        if (timeMode === 'window') {
+            data.time_mode = 'window';
+            data.time_windows = timeWindows;
+        } else {
+            data.time_mode = 'exact';
+            // Add any other params needed for exact times
         }
 
-        $timeSlotsContainer.html('<p>Loading available times...</p>');
-        $timeSelectNextButton.prop('disabled', true);
-        $selectedStartTime.val('');
-        $selectedEndTime.val('');
-
         $.ajax({
-            url: scme_ajax_obj.rest_url + 'get-available-slots', // Using REST API endpoint
+            url: '/wp-json/your-plugin/v1/get-available-slots',
             method: 'POST',
-            data: JSON.stringify({
-                selected_date: selectedDate,
-                service_duration: serviceDuration,
-                nonce: scme_ajax_obj.nonce // For custom nonce validation
-            }),
-            contentType: 'application/json',
-            beforeSend: function(xhr) {
-                xhr.setRequestHeader('X-WP-Nonce', scme_ajax_obj.nonce); // For WP REST API nonce
-            },
+            data: data,
             success: function(response) {
-                if (response.success && response.available_slots.length > 0) {
-                    $timeSlotsContainer.empty();
-                    response.available_slots.forEach(slot => {
-                        const $slotDiv = $(`<div class="scme-time-slot" data-start="${slot.start}" data-end="${slot.end}">${slot.display_time}</div>`);
-                        $timeSlotsContainer.append($slotDiv);
+                if (timeMode === 'window' && response.available_windows) {
+                    let html = '';
+                    response.available_windows.forEach(function(win){
+                        html += `<div class="scme-time-window" data-window="${win.window}">${win.display_time}</div>`;
                     });
-                    showFormMessage('Available slots loaded.', 'success');
+                    $('#scme-time-slots-' + $calendarPicker.attr('name')).html(html);
                 } else {
-                    $timeSlotsContainer.html('<p>No available slots found for this date. Please try another date.</p>');
-                    showFormMessage(response.message || 'No available slots found.', 'error');
+                    // ...existing logic for exact times...
                 }
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-                $timeSlotsContainer.html('<p>Error loading times. Please try again.</p>');
-                showFormMessage('Error loading times: ' + (jqXHR.responseJSON && jqXHR.responseJSON.message ? jqXHR.responseJSON.message : errorThrown), 'error');
-                console.error('AJAX Error:', textStatus, errorThrown, jqXHR.responseText);
             }
         });
     }
@@ -343,6 +335,29 @@ jQuery(document).ready(function($) {
                 showFormMessage('An error occurred: ' + (jqXHR.responseJSON && jqXHR.responseJSON.message ? jqXHR.responseJSON.message : errorThrown), 'error');
                 $('#scme-submit-booking').prop('disabled', false).text('Pay Now with PayPal');
                 console.error('AJAX Error:', textStatus, errorThrown, jqXHR.responseText);
+            }
+        });
+    });
+
+    $('.scme-calendar-picker').each(function(){
+        const $input = $(this);
+        const timeMode = $input.data('time-mode');
+        const timeWindows = ($input.data('time-windows') || '').split(',').map(w => w.trim());
+        $input.datepicker({
+            minDate: 0,
+            onSelect: function(dateText) {
+                // Fetch available slots for this date
+                if (timeMode === 'window') {
+                    // Show time windows as options
+                    let html = '';
+                    timeWindows.forEach(function(win){
+                        html += `<div class="scme-time-window" data-window="${win}">${win}</div>`;
+                    });
+                    $('#scme-time-slots-' + $input.attr('name')).html(html);
+                } else {
+                    // Fetch exact times as before (AJAX)
+                    // ...existing AJAX logic...
+                }
             }
         });
     });

@@ -104,6 +104,35 @@ class SCME_Form_Handler {
             // If it was busy, current_slot_start was already moved past the busy period, so the while loop continues.
         }
 
+        $time_mode = $request->get_param('time_mode') ?: 'exact';
+        $time_windows = $request->get_param('time_windows') ?: '';
+        if ($time_mode === 'window' && $time_windows) {
+            $windows = array_map('trim', explode(',', $time_windows));
+            $available_windows = [];
+            foreach ($windows as $window) {
+                list($win_start, $win_end) = explode('-', $window);
+                $slot_start = new DateTime($date_str . ' ' . trim($win_start), wp_timezone());
+                $slot_end = new DateTime($date_str . ' ' . trim($win_end), wp_timezone());
+                // Check for conflicts as you do for exact times
+                $conflict = false;
+                foreach ($busy_times as $busy) {
+                    $busy_start = new DateTime($busy->start);
+                    $busy_end = new DateTime($busy->end);
+                    if ($slot_start < $busy_end && $slot_end > $busy_start) {
+                        $conflict = true;
+                        break;
+                    }
+                }
+                if (!$conflict) {
+                    $available_windows[] = [
+                        'window' => $window,
+                        'display_time' => $window
+                    ];
+                }
+            }
+            return new WP_REST_Response(['success'=>true, 'available_windows'=>$available_windows], 200);
+        }
+
         return new WP_REST_Response( array( 'success' => true, 'available_slots' => $available_slots ), 200 );
     }
 

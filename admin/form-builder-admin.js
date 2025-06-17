@@ -88,6 +88,37 @@ window.SCMEFormBuilderInit = function(initialFields) {
                                     </small>
                                 </label><br>
                             ` : ''}
+                            ${field.type === 'date' ? `
+                                <label>Display as:
+                                  <select name="display_as">
+                                    <option value="date">Date Input</option>
+                                    <option value="calendar">Booking Calendar</option>
+                                  </select>
+                                </label><br>
+                                <label>Time Selection:
+                                  <select name="time_mode">
+                                    <option value="exact">Exact Times</option>
+                                    <option value="window">Arrival Windows</option>
+                                  </select>
+                                </label><br>
+                                <label>Time Windows (for Arrival Windows, comma separated, e.g. "8:00-10:00,10:00-12:00"):
+                                  <input type="text" name="time_windows" value="${field.time_windows||''}" />
+                                </label><br>
+                                <!-- Time Windows UI -->
+                                <label>Time Windows (for Arrival Windows):</label>
+                                <div id="scme-time-windows-list">
+                                ${
+                                    (field.time_windows || '').split(',').map(w => w.trim()).filter(Boolean).map((win, idx) => `
+                                        <div class="scme-time-window-row">
+                                            <input type="text" class="scme-time-window-input" value="${win}" placeholder="e.g. 8:00-10:00" />
+                                            <button type="button" class="scme-remove-time-window" data-idx="${idx}">Remove</button>
+                                        </div>
+                                    `).join('')
+                                }
+                                </div>
+                                <button type="button" id="scme-add-time-window">Add Window</button>
+                                <input type="hidden" name="time_windows" id="scme-time-windows-hidden" value="${field.time_windows || ''}" />
+                            ` : ''}
                             <div style="margin-top:8px;">
                                 <button type="submit" class="button button-primary button-small">Save</button>
                                 <button type="button" class="button button-secondary button-small scme-cancel-edit">Cancel</button>

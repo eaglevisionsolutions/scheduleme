@@ -130,6 +130,17 @@ $step_count = count($steps);
                                 echo "<input type='checkbox' id='$field_id' name='$name' value='1' $required>";
                             }
                             break;
+                        case 'date':
+                            $display_as = $f['display_as'] ?? 'date';
+                            $time_mode = $f['time_mode'] ?? 'exact';
+                            $time_windows = $f['time_windows'] ?? '';
+                            if ($display_as === 'calendar') {
+                                echo "<input type='text' id='$field_id' name='$name' class='scme-calendar-picker' data-time-mode='$time_mode' data-time-windows='" . esc_attr($time_windows) . "' $required>";
+                                echo "<div class='scme-time-slots' id='scme-time-slots-$name'></div>";
+                            } else {
+                                echo "<input type='date' id='$field_id' name='$name' $required>";
+                            }
+                            break;
                         default:
                             echo "<input type='$type' id='$field_id' name='$name' placeholder='$placeholder' $required" .
                                 ($regex ? " pattern='$regex'" : "") . ">";
