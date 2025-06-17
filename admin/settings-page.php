@@ -182,7 +182,7 @@ class SCME_Admin_Settings {
 
     // Special callback for Redirect URI (read-only for user)
     public function redirect_uri_callback( $args ) {
-        $redirect_uri = admin_url( 'admin.php?page=SCME-settings' ); // Where Google should redirect after OAuth
+        $redirect_uri = admin_url( 'admin.php?page=chedule-me' ); // Where Google should redirect after OAuth
         echo "<input type='text' value='$redirect_uri' class='regular-text' readonly />";
         echo '<p class="description">Copy this URI into your Google Cloud Platform credentials for your OAuth 2.0 Web application.</p>';
     }
