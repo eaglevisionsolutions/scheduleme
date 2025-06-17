@@ -227,7 +227,7 @@ class SCME_Admin_Settings {
             $code = sanitize_text_field( $_GET['code'] );
             $client_id = get_option('SCME_google_client_id');
             $client_secret = get_option('SCME_google_client_secret');
-            $redirect_uri = admin_url( 'admin.php?page=SCME-settings' );
+            $redirect_uri = admin_url( 'admin.php?page=schedule-me' );
 
             if ( $client_id && $client_secret ) {
                 $token_url = 'https://oauth2.googleapis.com/token';
