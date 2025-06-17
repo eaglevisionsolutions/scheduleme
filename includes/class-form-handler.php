@@ -9,6 +9,11 @@ add_action('rest_api_init', function() {
         'callback' => ['SCME_Form_Handler', 'get_available_dates'],
         'permission_callback' => '__return_true'
     ]);
+    register_rest_route('your-plugin/v1', '/get-available-slots', [
+        'methods' => 'POST',
+        'callback' => ['SCME_Form_Handler', 'get_available_slots'],
+        'permission_callback' => '__return_true' // <-- This allows public access
+    ]);
 });
 
 class SCME_Form_Handler {
