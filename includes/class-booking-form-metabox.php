@@ -84,12 +84,8 @@ class SCME_Booking_Form_Metabox {
     }
 
     public static function save($post_id) {
-        // Save fields
         if (isset($_POST['scme_form_fields'])) {
             update_post_meta($post_id, '_scme_form_fields', wp_unslash($_POST['scme_form_fields']));
-        }
-        if (isset($_POST['scme_form_style'])) {
-            update_post_meta($post_id, '_scme_form_style', wp_unslash($_POST['scme_form_style']));
         }
     }
 

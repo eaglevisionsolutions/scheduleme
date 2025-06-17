@@ -249,9 +249,14 @@ window.SCMEFormBuilderInit = function(initialFields) {
             }
             // Additional fields for date type
             if(f.type === 'date') {
+                let timeWindows = [];
+                $('#scme-time-windows-list .scme-time-window-input').each(function() {
+                    let val = $(this).val().trim();
+                    if (val) timeWindows.push(val);
+                });
+                f.time_windows = timeWindows.join(',');
                 f.display_as = $form.find('select[name="display_as"]').val();
                 f.time_mode = $form.find('select[name="time_mode"]').val();
-                f.time_windows = $('#scme-time-windows-hidden').val(); // or wherever your time windows are stored
             }
             fields[idx] = f;
             renderFields();
@@ -320,5 +325,20 @@ window.SCMEFormBuilderInit = function(initialFields) {
             $dropzone.find('.scme-edit-step-form').hide();
             $step.find('.scme-edit-step-form').slideDown(150);
         }
+
+        // Add window button (should be outside the dynamic list)
+        $('#scme-form-builder').on('click', '#scme-add-time-window', function() {
+            $('#scme-time-windows-list').append(`
+                <div class="scme-time-window-row">
+                    <input type="text" class="scme-time-window-input" placeholder="e.g. 10:00-12:00" />
+                    <button type="button" class="scme-remove-time-window">Remove</button>
+                </div>
+            `);
+        });
+
+        // Remove window button (event delegation)
+        $('#scme-form-builder').on('click', '.scme-remove-time-window', function() {
+            $(this).closest('.scme-time-window-row').remove();
+        });
     });
 };
