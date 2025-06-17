@@ -247,6 +247,12 @@ window.SCMEFormBuilderInit = function(initialFields) {
                 }
                 f.options = optionsArr;
             }
+            // Additional fields for date type
+            if(f.type === 'date') {
+                f.display_as = $form.find('select[name="display_as"]').val();
+                f.time_mode = $form.find('select[name="time_mode"]').val();
+                f.time_windows = $('#scme-time-windows-hidden').val(); // or wherever your time windows are stored
+            }
             fields[idx] = f;
             renderFields();
         });
