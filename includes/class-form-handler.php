@@ -3,6 +3,14 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit; // Exit if accessed directly.
 }
 
+add_action('rest_api_init', function() {
+    register_rest_route('your-plugin/v1', '/get-available-dates', [
+        'methods' => 'GET',
+        'callback' => ['SCME_Form_Handler', 'get_available_dates'],
+        'permission_callback' => '__return_true'
+    ]);
+});
+
 class SCME_Form_Handler {
 
     private $google_calendar_api;
@@ -221,5 +229,76 @@ class SCME_Form_Handler {
             'redirect_url'   => $paypal_redirect_url,
             'message'        => 'Booking initiated, redirecting to PayPal.'
         ), 200 );
+    }
+
+    /**
+     * Get available dates for booking.
+     * REST API endpoint callback: /wp-json/your-plugin/v1/get-available-dates
+     * Request method: GET
+     *
+     * @param WP_REST_Request $request
+     * @return WP_REST_Response
+     */
+    public static function get_available_dates(WP_REST_Request $request) {
+        $time_mode = $request->get_param('time_mode');
+        $time_windows = $request->get_param('time_windows');
+        $dates = [];
+
+        // 1. If Google Calendar is integrated, fetch from Google Calendar
+        $use_google = get_option('scme_use_google_calendar'); // Example option
+        if ($use_google) {
+            $dates = self::get_dates_from_google_calendar($time_windows);
+        } else {
+            // 2. Otherwise, fetch from manual availability (your plugin's settings)
+            $dates = self::get_dates_from_manual_availability($time_windows);
+        }
+
+        return rest_ensure_response(['available_dates' => $dates]);
+    }
+
+    // Example: Fetch available dates from Google Calendar
+    public static function get_dates_from_google_calendar($time_windows) {
+        // Pseudocode: Replace with your actual Google Calendar API logic
+        $busy_slots = SCME_Google_Calendar_API::get_busy_slots();
+        $dates = [];
+        $window_arr = array_map('trim', explode(',', $time_windows));
+        $start = new DateTime();
+        $end = (clone $start)->modify('+30 days');
+        $interval = new DateInterval('P1D');
+        $period = new DatePeriod($start, $interval, $end);
+
+        foreach ($period as $date) {
+            $date_str = $date->format('Y-m-d');
+            foreach ($window_arr as $window) {
+                list($win_start, $win_end) = explode('-', $window);
+                $slot_start = new DateTime("$date_str $win_start");
+                $slot_end = new DateTime("$date_str $win_end");
+                $conflict = false;
+                foreach ($busy_slots as $busy) {
+                    if ($slot_start < $busy['end'] && $slot_end > $busy['start']) {
+                        $conflict = true;
+                        break;
+                    }
+                }
+                if (!$conflict) {
+                    $dates[] = $date_str;
+                    break;
+                }
+            }
+        }
+        return array_unique($dates);
+    }
+
+    // Example: Fetch available dates from manual settings
+    public static function get_dates_from_manual_availability($time_windows) {
+        $availability = get_option('scme_manual_availability', []);
+        $dates = [];
+        foreach ($availability as $row) {
+            if (!empty($row['date']) && !empty($row['windows'])) {
+                // Optionally, filter by $time_windows if needed
+                $dates[] = $row['date'];
+            }
+        }
+        return array_unique($dates);
     }
 }

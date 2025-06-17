@@ -94,6 +94,9 @@ class SCME_Admin_Settings {
         register_setting( 'SCME_settings_group', 'scme_recaptcha_v3_site_key' );
         register_setting( 'SCME_settings_group', 'scme_recaptcha_v3_secret' );
 
+        // Register Manual Availability Settings
+        register_setting( 'scme_availability_group', 'scme_manual_availability' );
+
         // Add settings sections
         add_settings_section(
             'SCME_google_section',
@@ -116,6 +119,13 @@ class SCME_Admin_Settings {
             'SCME-settings'
         );
 
+        add_settings_section(
+            'scme_availability_section',
+            __( 'Manual Availability Settings', 'your-custom-booking-plugin' ),
+            array( $this, 'availability_section_callback' ),
+            'scme-availability'
+        );
+
         // Add settings fields for Google Calendar
         add_settings_field( 'SCME_google_client_id', 'Client ID', array( $this, 'text_input_callback' ), 'SCME-settings', 'SCME_google_section', array( 'name' => 'SCME_google_client_id' ) );
         add_settings_field( 'SCME_google_client_secret', 'Client Secret', array( $this, 'text_input_callback' ), 'SCME-settings', 'SCME_google_section', array( 'name' => 'SCME_google_client_secret', 'type' => 'password' ) );
@@ -134,6 +144,9 @@ class SCME_Admin_Settings {
         add_settings_field( 'scme_recaptcha_v2_secret', 'reCAPTCHA v2 Secret', array( $this, 'text_input_callback' ), 'SCME-settings', 'SCME_recaptcha_section', array( 'name' => 'scme_recaptcha_v2_secret', 'type' => 'password' ) );
         add_settings_field( 'scme_recaptcha_v3_site_key', 'reCAPTCHA v3 Site Key', array( $this, 'text_input_callback' ), 'SCME-settings', 'SCME_recaptcha_section', array( 'name' => 'scme_recaptcha_v3_site_key' ) );
         add_settings_field( 'scme_recaptcha_v3_secret', 'reCAPTCHA v3 Secret', array( $this, 'text_input_callback' ), 'SCME-settings', 'SCME_recaptcha_section', array( 'name' => 'scme_recaptcha_v3_secret', 'type' => 'password' ) );
+
+        // Add settings fields for Manual Availability
+        add_settings_field( 'scme_manual_availability', 'Manual Availability', array( $this, 'availability_callback' ), 'scme-availability', 'scme_availability_section' );
     }
 
     public function google_section_callback() {
@@ -146,6 +159,10 @@ class SCME_Admin_Settings {
 
     public function recaptcha_section_callback() {
         echo '<p>Enter your reCAPTCHA keys for v2 and v3. These are used to protect your forms from spam and abuse.</p>';
+    }
+
+    public function availability_section_callback() {
+        echo '<p>Manage manual availability for bookings. Add or remove date and time windows as needed.</p>';
     }
 
     // Generic text input callback
