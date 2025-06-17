@@ -166,4 +166,36 @@ class SCME_Google_Calendar_API {
         }
         return false;
     }
+
+    /**
+     * Checks if a time window is free in the specified calendar.
+     *
+     * @param string $calendar_id The ID of the calendar to check.
+     * @param string $access_token The access token for Google API.
+     * @param string $start_datetime Start of the time window (ISO 8601).
+     * @param string $end_datetime End of the time window (ISO 8601).
+     * @return bool True if the time window is free, false if there is a conflict or on error.
+     */
+    public static function is_time_window_free($calendar_id, $access_token, $start_datetime, $end_datetime) {
+        // Use Google Calendar FreeBusy API to check for conflicts
+        $url = 'https://www.googleapis.com/calendar/v3/freeBusy';
+        $body = json_encode([
+            'timeMin' => $start_datetime . 'Z',
+            'timeMax' => $end_datetime . 'Z',
+            'items' => [['id' => $calendar_id]]
+        ]);
+        $response = wp_remote_post($url, [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $access_token,
+                'Content-Type'  => 'application/json'
+            ],
+            'body' => $body
+        ]);
+        if (is_wp_error($response)) return false;
+        $data = json_decode(wp_remote_retrieve_body($response), true);
+        if (empty($data['calendars'][$calendar_id]['busy'])) {
+            return true; // No conflicts
+        }
+        return false; // Conflict found
+    }
 }

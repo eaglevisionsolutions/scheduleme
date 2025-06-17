@@ -315,4 +315,74 @@ class SCME_Form_Handler {
         }
         return $dates;
     }
+
+    /**
+     * Get available slots for a specific date.
+     * REST API endpoint callback: /wp-json/your-plugin/v1/get-available-slots
+     * Request method: GET
+     *
+     * @param WP_REST_Request $request
+     * @return WP_REST_Response
+     */
+    public static function get_available_slots(WP_REST_Request $request) {
+        $selected_date = $request->get_param('selected_date');
+        $time_mode = $request->get_param('time_mode');
+        $availability = get_option('scme_manual_availability', []);
+        $windows = [];
+
+        // Get day of week from selected date
+        $day_of_week = strtolower(date('l', strtotime($selected_date)));
+
+        // Check if Google Calendar is integrated
+        $google_enabled = get_option('SCME_google_access_token') && get_option('SCME_google_calendar_id');
+
+        if (isset($availability[$day_of_week]) && is_array($availability[$day_of_week])) {
+            if (!in_array('not_available', $availability[$day_of_week])) {
+                $candidate_windows = array_filter($availability[$day_of_week], function($w) {
+                    return $w !== 'not_available' && trim($w) !== '';
+                });
+
+                if ($google_enabled) {
+                    // --- GOOGLE CALENDAR LOGIC ---
+                    // For each window, check if it's free in Google Calendar
+                    require_once plugin_dir_path(__FILE__) . 'class-google-calendar-api.php';
+                    $calendar_id = get_option('SCME_google_calendar_id');
+                    $access_token = get_option('SCME_google_access_token');
+
+                    foreach ($candidate_windows as $win) {
+                        list($win_start, $win_end) = explode('-', $win);
+                        $start_datetime = date('Y-m-d', strtotime($selected_date)) . 'T' . trim($win_start) . ':00';
+                        $end_datetime = date('Y-m-d', strtotime($selected_date)) . 'T' . trim($win_end) . ':00';
+
+                        // Call your Google Calendar API class to check for conflicts
+                        $is_free = SCME_Google_Calendar_API::is_time_window_free(
+                            $calendar_id,
+                            $access_token,
+                            $start_datetime,
+                            $end_datetime
+                        );
+
+                        if ($is_free) {
+                            $windows[] = [
+                                'window' => $win,
+                                'display_time' => $win
+                            ];
+                        }
+                    }
+                } else {
+                    // --- MANUAL LOGIC ---
+                    foreach ($candidate_windows as $win) {
+                        $windows[] = [
+                            'window' => $win,
+                            'display_time' => $win
+                        ];
+                    }
+                }
+            }
+        }
+
+        return rest_ensure_response([
+            'available_windows' => $windows
+        ]);
+    }
 }

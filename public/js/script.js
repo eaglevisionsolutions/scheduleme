@@ -369,7 +369,6 @@ jQuery(document).ready(function($) {
                     onSelect: function(dateText) {
                         $('#scme-date-hidden-' + fieldName).val(dateText);
 
-                        // Fetch and show time windows for this date
                         $.ajax({
                             url: '/wp-json/your-plugin/v1/get-available-slots',
                             method: 'POST',
