@@ -339,25 +339,65 @@ jQuery(document).ready(function($) {
         });
     });
 
-    $('.scme-calendar-picker').each(function(){
-        const $input = $(this);
-        const timeMode = $input.data('time-mode');
-        const timeWindows = ($input.data('time-windows') || '').split(',').map(w => w.trim());
-        $input.datepicker({
-            minDate: 0,
-            onSelect: function(dateText) {
-                // Fetch available slots for this date
-                if (timeMode === 'window') {
-                    // Show time windows as options
-                    let html = '';
-                    timeWindows.forEach(function(win){
-                        html += `<div class="scme-time-window" data-window="${win}">${win}</div>`;
-                    });
-                    $('#scme-time-slots-' + $input.attr('name')).html(html);
-                } else {
-                    // Fetch exact times as before (AJAX)
-                    // ...existing AJAX logic...
-                }
+    $('.scme-calendar-picker').each(function() {
+        const $calendar = $(this);
+        const fieldName = $calendar.data('name');
+        const timeMode = $calendar.data('time-mode');
+        const timeWindows = $calendar.data('time-windows');
+
+        // Fetch available dates from the server
+        $.ajax({
+            url: '/wp-json/your-plugin/v1/get-available-dates',
+            method: 'GET',
+            data: {
+                time_mode: timeMode,
+                time_windows: timeWindows
+            },
+            success: function(response) {
+                // Assume response.available_dates is an array of 'YYYY-MM-DD'
+                const availableDates = response.available_dates || [];
+
+                $calendar.datepicker({
+                    minDate: 0,
+                    dateFormat: 'yy-mm-dd',
+                    beforeShowDay: function(date) {
+                        const ymd = $.datepicker.formatDate('yy-mm-dd', date);
+                        if (availableDates.includes(ymd)) {
+                            return [true, "", "Available"];
+                        }
+                        return [false, "", "Unavailable"];
+                    },
+                    onSelect: function(dateText) {
+                        // Set hidden input value
+                        $('#scme-date-hidden-' + fieldName).val(dateText);
+
+                        // Fetch and show time windows for this date
+                        $.ajax({
+                            url: '/wp-json/your-plugin/v1/get-available-slots',
+                            method: 'POST',
+                            data: {
+                                selected_date: dateText,
+                                time_mode: timeMode,
+                                time_windows: timeWindows
+                            },
+                            success: function(resp) {
+                                let html = '';
+                                if (timeMode === 'window' && resp.available_windows) {
+                                    resp.available_windows.forEach(function(win){
+                                        html += `<div class="scme-time-window" data-window="${win.window}">${win.display_time}</div>`;
+                                    });
+                                } else if (resp.available_times) {
+                                    resp.available_times.forEach(function(time){
+                                        html += `<div class="scme-time-slot" data-time="${time}">${time}</div>`;
+                                    });
+                                } else {
+                                    html = '<div>No time windows available for this date.</div>';
+                                }
+                                $('#scme-time-slots-' + fieldName).html(html);
+                            }
+                        });
+                    }
+                });
             }
         });
     });
