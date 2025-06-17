@@ -359,6 +359,7 @@ jQuery(document).ready(function($) {
                 $calendar.datepicker({
                     minDate: 0,
                     dateFormat: 'yy-mm-dd',
+                    inline: true, // <-- This makes the calendar always visible
                     beforeShowDay: function(date) {
                         const ymd = $.datepicker.formatDate('yy-mm-dd', date);
                         if (availableDates.includes(ymd)) {
@@ -384,10 +385,6 @@ jQuery(document).ready(function($) {
                                     resp.available_windows.forEach(function(win){
                                         html += `<div class="scme-time-window" data-window="${win.window}">${win.display_time}</div>`;
                                     });
-                                } else if (resp.available_times) {
-                                    resp.available_times.forEach(function(time){
-                                        html += `<div class="scme-time-slot" data-time="${time}">${time}</div>`;
-                                    });
                                 } else {
                                     html = '<div>No time windows available for this date.</div>';
                                 }
@@ -404,6 +401,8 @@ jQuery(document).ready(function($) {
     $(document).on('click', '.scme-time-window', function() {
         $('.scme-time-window').removeClass('selected');
         $(this).addClass('selected');
-        // You may want to store the selected window in a hidden input for form submission
+        // Store the selected window in a hidden input if needed
+        const selectedWindow = $(this).data('window');
+        $('#scme-selected-window').val(selectedWindow);
     });
 });

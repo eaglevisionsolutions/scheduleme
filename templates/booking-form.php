@@ -136,9 +136,9 @@ $step_count = count($steps);
                             $time_windows = $f['time_windows'] ?? '';
                             if ($display_as === 'calendar') {
                                 ?>
-                                <div id="scme-calendar-<?php echo esc_attr($name); ?>" class="scme-calendar-picker" 
-                                     data-name="<?php echo esc_attr($name); ?>" 
-                                     data-time-mode="<?php echo esc_attr($time_mode); ?>" 
+                                <div id="scme-calendar-<?php echo esc_attr($name); ?>" class="scme-calendar-picker"
+                                     data-name="<?php echo esc_attr($name); ?>"
+                                     data-time-mode="<?php echo esc_attr($time_mode); ?>"
                                      data-time-windows="<?php echo esc_attr($time_windows); ?>"></div>
                                 <input type="hidden" name="<?php echo esc_attr($name); ?>" id="scme-date-hidden-<?php echo esc_attr($name); ?>" />
                                 <div class="scme-time-slots" id="scme-time-slots-<?php echo esc_attr($name); ?>"></div>
