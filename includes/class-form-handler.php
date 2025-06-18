@@ -333,15 +333,16 @@ class SCME_Form_Handler {
         $selected_date = $request->get_param('selected_date');
         $time_mode = $request->get_param('time_mode');
         $availability = get_option('scme_manual_availability', []);
-        $windows = [];
 
-        // Get day of week from selected date
         $day_of_week = strtolower(date('l', strtotime($selected_date)));
+        error_log("Selected date: $selected_date, Day: $day_of_week");
+        error_log("Availability: " . print_r($availability, true));
 
         // Check if Google Calendar is integrated
         $google_enabled = get_option('SCME_google_access_token') && get_option('SCME_google_calendar_id');
 
         if (isset($availability[$day_of_week]) && is_array($availability[$day_of_week])) {
+            error_log("Windows for $day_of_week: " . print_r($availability[$day_of_week], true));
             if (!in_array('not_available', $availability[$day_of_week])) {
                 $candidate_windows = array_filter($availability[$day_of_week], function($w) {
                     return $w !== 'not_available' && trim($w) !== '';
@@ -385,6 +386,7 @@ class SCME_Form_Handler {
                 }
             }
         }
+        error_log("Final windows: " . print_r($windows, true));
 
         return rest_ensure_response([
             'available_windows' => $windows
